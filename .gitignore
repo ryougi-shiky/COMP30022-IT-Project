@@ -27,3 +27,9 @@ deploy/.terraform/
 deploy/terraform.tfstate
 deploy/terraform.tfstate.backup
 deploy/terraform.tfvars
+
+# Terraform
+*.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/
