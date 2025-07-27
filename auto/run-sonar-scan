@@ -56,8 +56,9 @@ SCAN_OUTPUT=$(docker run \
     -e SONAR_FORCEAUTHENTICATION=false \
     -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
     sonar-scanner \
-    -Dsonar.projectBaseDir=. \
-    -Dsonar.login="$SONAR_TOKEN")
+    sonar-scanner \
+      -Dsonar.projectBaseDir=. \
+      -Dsonar.login="$SONAR_TOKEN"
 
 echo "$SCAN_OUTPUT" > scan.log
 
