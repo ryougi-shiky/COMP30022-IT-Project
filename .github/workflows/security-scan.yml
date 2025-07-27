@@ -57,5 +57,7 @@ jobs:
         run: ./auto/install-github-action-env
 
       - name: Run SonarQube Scanner
-        run: ./auto/run-sonar-scan
+        run: |
+          ./auto/build-sonar-scanner
+          ./auto/run-sonar-scan
 
