@@ -13,8 +13,7 @@ ARCH=$(uname -m)
 echo "System Arch: $ARCH"
 
 echo "Starting SonarQube Server..."
-cd sonarqube
-docker compose up -d sonarqube
+docker compose -f sonarqube/docker-compose.yml up -d sonarqube
 
 MAX_WAIT=120
 WAIT_TIME=0
@@ -40,7 +39,6 @@ done
 
 echo "   SonarQube Successfully Started! Visit ${SONAR_HOST_URL}"
 
-cd ..
 
 echo "   Creating token..."
 SONAR_TOKEN=$(curl -s -u admin:admin \
@@ -58,6 +56,7 @@ docker run \
     -e SONAR_FORCEAUTHENTICATION=false \
     -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
     sonar-scanner \
+    -Dsonar.projectBaseDir=. \
     -Dsonar.login="$SONAR_TOKEN"
 
 echo "✅ Scanning Completed! Waiting for report to be indexed..."
@@ -79,24 +78,6 @@ if [[ "$STATUS" != "SUCCESS" ]]; then
   echo "❌ Analysis failed!"
   exit 1
 fi
-
-analysisId=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$ceTaskId" \
-  | jq -r '.task.analysisId')
-
-curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=$analysisId" \
-  | tee "quality_gate.json"
-
-curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/measures/component?component=$PROJECT_KEY&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
-  | tee "measures.json"
-
-curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/issues/search?componentKeys=$PROJECT_KEY&p=1&ps=500" \
-  | tee "issues.json"
-
-echo "✅ All reports are saved："
-echo " - quality_gate.json"
-echo " - measures.json"
-echo " - issues.json"
-
 
 # Get analysisId
 ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.analysisId')
