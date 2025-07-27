@@ -60,4 +60,3 @@ jobs:
         run: |
           ./auto/build-sonar-scanner
           ./auto/run-sonar-scan
-

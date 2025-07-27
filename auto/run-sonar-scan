@@ -7,6 +7,7 @@ echo "-------------------- Running SonarQube Check --------------------"
 
 SONAR_HOST_URL="http://localhost:9000"
 PLATFORM_FLAG="--platform linux/amd64"
+PROJECT_KEY="comp30022-it-project"
 
 ARCH=$(uname -m)
 echo "System Arch: $ARCH"
