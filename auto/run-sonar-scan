@@ -48,7 +48,7 @@ docker run \
     -w /usr/src \
     -e SONAR_FORCEAUTHENTICATION=false \
     -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
-    sonarsource/sonar-scanner-cli:4.7@sha256:f3d97bc61071007e83ae1253134606ff43b0902683da526a619e19999446882a \
+    sonar-scanner \
     -Dsonar.login="$SONAR_TOKEN"
 
 echo "✅ Scanning Completed! Waiting for report to be indexed..."
