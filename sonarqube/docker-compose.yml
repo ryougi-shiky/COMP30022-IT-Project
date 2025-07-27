@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   sonarqube:
     image: sonarqube:lts-developer@sha256:b570b6365f21d9b25aa3b4fe197b782e13212cb32c45061dba50ce5a6c0941c6
@@ -8,10 +6,7 @@ services:
       - "9000:9000"
     environment:
       - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_logs:/opt/sonarqube/logs
-      - sonarqube_extensions:/opt/sonarqube/extensions
+      - SONAR_FORCEAUTHENTICATION=false
     networks:
       - sonar-network
     healthcheck:
@@ -20,34 +15,6 @@ services:
       timeout: 5s
       retries: 10
 
-  scanner:
-    image: sonarsource/sonar-scanner-cli:11.4.0.2044_7.2.0@sha256:14f46a51cbfde162e30cfd673bff542eca59860a0e904bcd2614f192605bd704
-    container_name: sonar-scanner
-    depends_on:
-      sonarqube:
-        condition: service_healthy
-    volumes:
-      - ../:/usr/src
-    working_dir: /usr/src
-    networks:
-      - sonar-network
-    environment:
-      - SONAR_HOST_URL=http://sonarqube:9000
-      - SONAR_TOKEN=squ_a6f0bd126eb7bacd69618389cba865a0dc1a5b2c
-    command: >
-      sonar-scanner
-        -Dsonar.projectKey=comp30022-it-project
-        -Dsonar.sources=frontend/src,backend
-        -Dsonar.exclusions=**/node_modules/**,**/build/**,**/dist/**,**/*.test.js,**/*.spec.js,**/cypress/**
-        -Dsonar.host.url=http://sonarqube:9000
-        -Dsonar.login=admin
-        -Dsonar.password=admin
-
 networks:
   sonar-network:
     driver: bridge
-
-volumes:
-  sonarqube_data:
-  sonarqube_logs:
-  sonarqube_extensions:
