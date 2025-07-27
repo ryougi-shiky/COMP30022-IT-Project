@@ -32,7 +32,6 @@ echo "   SonarQube Successfully Started! Visit ${SONAR_HOST_URL}"
 
 cd ..
 
-
 echo "   Creating token..."
 SONAR_TOKEN=$(curl -s -u admin:admin \
   -X POST "${SONAR_HOST_URL}/api/user_tokens/generate?name=ci-token-$(date +%s)" \

@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
-    node -v && npm -v \
+    node -v && npm -v
 
 # Install Chinese fonts
 RUN apt-get update && apt-get install -y fonts-noto-cjk fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
