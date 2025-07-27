@@ -47,7 +47,7 @@ SONAR_TOKEN=$(curl -s -u admin:admin \
 
 echo "🔍 Scanning Code..."
 
-docker run \
+SCAN_OUTPUT=$(docker run \
     --rm \
     --network sonarqube_sonar-network \
     $PLATFORM_FLAG \
@@ -57,14 +57,17 @@ docker run \
     -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
     sonar-scanner \
     -Dsonar.projectBaseDir=. \
-    -Dsonar.login="$SONAR_TOKEN"
+    -Dsonar.login="$SONAR_TOKEN")
+
+echo "$SCAN_OUTPUT" > scan.log
 
 echo "✅ Scanning Completed! Waiting for report to be indexed..."
-echo "   Scan Report: ${SONAR_HOST_URL}/dashboard?id=comp30022-it-project"
 
-# Get background task ID
-TASK_ID=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/component?component=$PROJECT_KEY" \
-  | jq -r '.queue[0].id')
+TASK_ID=$(echo "$SCAN_OUTPUT" | grep -oP 'task\?id=\K[A-Za-z0-9_-]+')
+if [[ -z "$TASK_ID" ]]; then
+  echo "❌ Failed to extract task ID from scan output."
+  exit 1
+fi
 
 # Poll until task complete
 while true; do
