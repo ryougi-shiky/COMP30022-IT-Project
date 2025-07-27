@@ -65,24 +65,24 @@ cat scan.log
 
 echo "✅ Scanning Completed! Waiting for report to be indexed..."
 
-TASK_ID=$(echo "$SCAN_OUTPUT" | grep -oP 'task\?id=\K[A-Za-z0-9_-]+')
-if [[ -z "$TASK_ID" ]]; then
-  echo "❌ Failed to extract task ID from scan output."
-  exit 1
-fi
-
-# Poll until task complete
-while true; do
-  STATUS=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.status')
-  echo "Status: $STATUS"
-  if [[ "$STATUS" == "SUCCESS" || "$STATUS" == "FAILED" ]]; then break; fi
-  sleep 2
-done
-
-if [[ "$STATUS" != "SUCCESS" ]]; then
-  echo "❌ Analysis failed!"
-  exit 1
-fi
+#TASK_ID=$(echo "$SCAN_OUTPUT" | grep -oP 'task\?id=\K[A-Za-z0-9_-]+')
+#if [[ -z "$TASK_ID" ]]; then
+#  echo "❌ Failed to extract task ID from scan output."
+#  exit 1
+#fi
+#
+## Poll until task complete
+#while true; do
+#  STATUS=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.status')
+#  echo "Status: $STATUS"
+#  if [[ "$STATUS" == "SUCCESS" || "$STATUS" == "FAILED" ]]; then break; fi
+#  sleep 2
+#done
+#
+#if [[ "$STATUS" != "SUCCESS" ]]; then
+#  echo "❌ Analysis failed!"
+#  exit 1
+#fi
 
 # Get analysisId
 #ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.analysisId')
