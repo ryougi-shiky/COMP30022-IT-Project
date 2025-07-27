@@ -46,4 +46,4 @@ ENV SONAR_SCANNER_OPTS="-server"
 
 WORKDIR /app
 
-ENTRYPOINT ["sonar-scanner"]
+CMD ["sonar-scanner"]
