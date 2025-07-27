@@ -1,0 +1,107 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "-------------------- Running SonarQube Check --------------------"
+
+SONAR_HOST_URL="http://localhost:9000"
+PLATFORM_FLAG="--platform linux/amd64"
+PROJECT_KEY="comp30022-it-project"
+
+ARCH=$(uname -m)
+echo "System Arch: $ARCH"
+
+echo "Starting SonarQube Server..."
+docker compose -f sonarqube/docker-compose.yml up -d sonarqube
+
+MAX_WAIT=120
+WAIT_TIME=0
+echo "⏳ Waiting for SonarQube to become available..."
+while true; do
+  STATUS=$(curl -s "${SONAR_HOST_URL}/api/system/status" | jq -r .status || echo "DOWN")
+  echo "   SonarQube status: $STATUS"
+
+  if [ "$STATUS" == "UP" ]; then
+    echo "✅ SonarQube is up!"
+    break
+  fi
+
+  if [ $WAIT_TIME -ge $MAX_WAIT ]; then
+    echo "❌ Timeout: SonarQube did not start within ${MAX_WAIT} seconds."
+    docker compose down
+    exit 1
+  fi
+
+  sleep 5
+  WAIT_TIME=$((WAIT_TIME + 5))
+done
+
+echo "   SonarQube Successfully Started! Visit ${SONAR_HOST_URL}"
+
+
+echo "   Creating token..."
+SONAR_TOKEN=$(curl -s -u admin:admin \
+  -X POST "${SONAR_HOST_URL}/api/user_tokens/generate?name=ci-token-$(date +%s)" \
+  | jq -r .token)
+
+echo "🔍 Scanning Code..."
+
+SCAN_OUTPUT=$(docker run \
+    --rm \
+    --network sonarqube_sonar-network \
+    $PLATFORM_FLAG \
+    -v "$(pwd):/usr/src" \
+    -w /usr/src \
+    -e SONAR_FORCEAUTHENTICATION=false \
+    -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+    sonar-scanner \
+    sonar-scanner \
+      -Dsonar.projectBaseDir=. \
+      -Dsonar.login="$SONAR_TOKEN")
+
+echo "$SCAN_OUTPUT" > scan.log
+cat scan.log
+
+echo "✅ Scanning Completed! Waiting for report to be indexed..."
+
+#TASK_ID=$(echo "$SCAN_OUTPUT" | grep -oP 'task\?id=\K[A-Za-z0-9_-]+')
+#if [[ -z "$TASK_ID" ]]; then
+#  echo "❌ Failed to extract task ID from scan output."
+#  exit 1
+#fi
+#
+## Poll until task complete
+#while true; do
+#  STATUS=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.status')
+#  echo "Status: $STATUS"
+#  if [[ "$STATUS" == "SUCCESS" || "$STATUS" == "FAILED" ]]; then break; fi
+#  sleep 2
+#done
+#
+#if [[ "$STATUS" != "SUCCESS" ]]; then
+#  echo "❌ Analysis failed!"
+#  exit 1
+#fi
+
+# Get analysisId
+#ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.analysisId')
+#
+## Get reports
+#mkdir -p sonar-report
+#
+#curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" \
+#  > sonar-report/quality_gate.json
+#
+#curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/measures/component?component=$PROJECT_KEY&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
+#  > sonar-report/measures.json
+#
+#curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/issues/search?componentKeys=$PROJECT_KEY&ps=500" \
+#  > sonar-report/issues.json
+#
+#echo "✅ Sonar reports saved to ./sonar-report/"
+
+#echo "🧹 Cleaning up..."
+#cd sonarqube
+#docker compose down
+#echo "✅ SonarQube is stopped"

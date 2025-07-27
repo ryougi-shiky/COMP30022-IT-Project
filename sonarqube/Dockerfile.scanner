@@ -1,0 +1,49 @@
+FROM debian:12-slim@sha256:2424c1850714a4d94666ec928e24d86de958646737b1d113f5b2207be44d37d8
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SONAR_SCANNER_VERSION=5.0.1.3006
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    fontconfig \
+    libfreetype6 \
+    libxrender1 \
+    libxext6 \
+    libxi6 \
+    libxrandr2 \
+    libxfixes3 \
+    libxcursor1 \
+    libxinerama1 \
+    libxss1 \
+    libxtst6 \
+    libasound2 \
+    libgtk-3-0 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jre-headless \
+    default-jdk \
+    python3
+
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    node -v && npm -v
+
+# Install Chinese fonts
+RUN apt-get update && apt-get install -y fonts-noto-cjk fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
+
+# Install sonar-scanner cli
+RUN curl -L -o /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip && \
+    unzip /tmp/sonar-scanner.zip -d /opt && \
+    ln -s /opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux /opt/sonar-scanner && \
+    ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
+    rm /tmp/sonar-scanner.zip
+
+ENV PATH="/opt/sonar-scanner/bin:${PATH}"
+ENV SONAR_SCANNER_OPTS="-server"
+
+WORKDIR /app
+
+CMD ["sonar-scanner"]

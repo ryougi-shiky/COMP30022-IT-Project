@@ -1,0 +1,20 @@
+services:
+  sonarqube:
+    image: sonarqube:lts-developer@sha256:b570b6365f21d9b25aa3b4fe197b782e13212cb32c45061dba50ce5a6c0941c6
+    container_name: sonarqube-server
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+      - SONAR_FORCEAUTHENTICATION=false
+    networks:
+      - sonar-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+networks:
+  sonar-network:
+    driver: bridge
