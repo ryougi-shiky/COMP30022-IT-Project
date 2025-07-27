@@ -17,21 +17,24 @@ docker compose up -d sonarqube
 
 MAX_WAIT=120
 WAIT_TIME=0
-while ! curl -f ${SONAR_HOST_URL} > /dev/null 2>&1; do
-    STATUS=$(curl -s ${SONAR_HOST_URL}/api/system/status | jq -r .status || echo "DOWN")
-    echo "   SonarQube status: $STATUS"
-    if [ "$STATUS" == "UP" ]; then
-      break
-    fi
+echo "⏳ Waiting for SonarQube to become available..."
+while true; do
+  STATUS=$(curl -s "${SONAR_HOST_URL}/api/system/status" | jq -r .status || echo "DOWN")
+  echo "   SonarQube status: $STATUS"
 
-    if [ $WAIT_TIME -ge $MAX_WAIT ]; then
-        echo "Error: SonarQube Server Start Timeout"
-        docker compose down
-        exit 1
-    fi
-    echo "   Waiting... ($WAIT_TIME/$MAX_WAIT seconds)"
-    sleep 5
-    WAIT_TIME=$((WAIT_TIME + 5))
+  if [ "$STATUS" == "UP" ]; then
+    echo "✅ SonarQube is up!"
+    break
+  fi
+
+  if [ $WAIT_TIME -ge $MAX_WAIT ]; then
+    echo "❌ Timeout: SonarQube did not start within ${MAX_WAIT} seconds."
+    docker compose down
+    exit 1
+  fi
+
+  sleep 5
+  WAIT_TIME=$((WAIT_TIME + 5))
 done
 
 echo "   SonarQube Successfully Started! Visit ${SONAR_HOST_URL}"
