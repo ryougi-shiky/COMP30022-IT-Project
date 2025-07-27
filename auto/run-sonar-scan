@@ -63,12 +63,12 @@ echo "✅ Scanning Completed! Waiting for report to be indexed..."
 echo "   Scan Report: ${SONAR_HOST_URL}/dashboard?id=comp30022-it-project"
 
 # Get background task ID
-TASK_ID=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/ce/component?component=$PROJECT_KEY" \
+TASK_ID=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/component?component=$PROJECT_KEY" \
   | jq -r '.queue[0].id')
 
 # Poll until task complete
 while true; do
-  STATUS=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/ce/task?id=$TASK_ID" | jq -r '.task.status')
+  STATUS=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.status')
   echo "Status: $STATUS"
   if [[ "$STATUS" == "SUCCESS" || "$STATUS" == "FAILED" ]]; then break; fi
   sleep 2
@@ -79,16 +79,16 @@ if [[ "$STATUS" != "SUCCESS" ]]; then
   exit 1
 fi
 
-analysisId=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/ce/task?id=$ceTaskId" \
+analysisId=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$ceTaskId" \
   | jq -r '.task.analysisId')
 
-curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/qualitygates/project_status?analysisId=$analysisId" \
+curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=$analysisId" \
   | tee "quality_gate.json"
 
-curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/measures/component?component=$PROJECT_KEY&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
+curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/measures/component?component=$PROJECT_KEY&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
   | tee "measures.json"
 
-curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/issues/search?componentKeys=$PROJECT_KEY&p=1&ps=500" \
+curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/issues/search?componentKeys=$PROJECT_KEY&p=1&ps=500" \
   | tee "issues.json"
 
 echo "✅ All reports are saved："
@@ -98,18 +98,18 @@ echo " - issues.json"
 
 
 # Get analysisId
-ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/ce/task?id=$TASK_ID" | jq -r '.task.analysisId')
+ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/ce/task?id=$TASK_ID" | jq -r '.task.analysisId')
 
 # Get reports
 mkdir -p sonar-report
 
-curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" \
+curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" \
   > sonar-report/quality_gate.json
 
-curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/measures/component?component=$PROJECT_KEY&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
+curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/measures/component?component=$PROJECT_KEY&metricKeys=bugs,vulnerabilities,code_smells,coverage,duplicated_lines_density" \
   > sonar-report/measures.json
 
-curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST/api/issues/search?componentKeys=$PROJECT_KEY&ps=500" \
+curl -s -u "$SONAR_TOKEN:" "${SONAR_HOST_URL}/api/issues/search?componentKeys=$PROJECT_KEY&ps=500" \
   > sonar-report/issues.json
 
 echo "✅ Sonar reports saved to ./sonar-report/"
