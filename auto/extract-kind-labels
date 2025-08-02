@@ -5,9 +5,38 @@ cd "$(dirname "$0")/.."
 
 pr_body="$1"
 
-labels=$(echo "$pr_body" | grep -iE '^\s*-\s*\[x\]\s*/kind\s+[a-zA-Z0-9_-]+' \
-  | sed -E 's@.*\/kind\s+([a-zA-Z0-9_-]+).*@kind/\1@' \
+# Extract /kind labels from checked boxes
+raw_labels=$(echo "$pr_body" | grep -iE '^\s*-\s*\[x\]\s*/kind\s+[a-zA-Z0-9_-]+' \
+  | sed -E 's@.*\/kind\s+([a-zA-Z0-9_-]+).*@\1@' \
   | sort -u | tr -d '\r')
+
+# Map /kind labels to actual labels
+labels=""
+for label in $raw_labels; do
+  case "$label" in
+    "bugfix")
+      mapped_label="bug"
+      ;;
+    "documentation")
+      mapped_label="documentation"
+      ;;
+    "feature")
+      mapped_label="enhancement"
+      ;;
+    "dependency-update")
+      mapped_label="dependencies"
+      ;;
+    *)
+      mapped_label="kind/$label"
+      ;;
+  esac
+
+  if [[ -n "$labels" ]]; then
+    labels="$labels"$'\n'"$mapped_label"
+  else
+    labels="$mapped_label"
+  fi
+done
 
 if [[ -n "$labels" ]]; then
   echo "labels<<EOF" >> "$GITHUB_OUTPUT"

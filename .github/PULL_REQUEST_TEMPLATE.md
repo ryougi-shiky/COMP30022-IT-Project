@@ -1,12 +1,12 @@
 
 #### What type of PR is this?
 
-- [ ] /kind bugfix
+- [ ] bug
 - [ ] /kind cleanup
-- [ ] /kind documentation
-- [ ] /kind feature
+- [ ] documentation
+- [ ] enhancement
 - [ ] /kind refactor
-- [ ] /kind dependency-update
+- [ ] dependencies
 - [ ] /kind api-change
 - [ ] /kind deprecation
 - [ ] /kind failing-test
