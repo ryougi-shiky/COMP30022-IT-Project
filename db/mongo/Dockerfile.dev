@@ -1,4 +1,4 @@
-FROM mongo:6.0.24@sha256:54455b811e11129f6aec69d0df08977b770c2d78edc97dc7046da92699e3b754
+FROM mongo:8.0.12@sha256:a6bda40d00e56682aeaa1bfc88e024b7dd755782c575c02760104fe02010f94f
 
 COPY ./dump /docker-entrypoint-initdb.d/dump
 COPY ./init.sh /docker-entrypoint-initdb.d/init.sh
