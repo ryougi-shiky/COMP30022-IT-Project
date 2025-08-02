@@ -1,0 +1,39 @@
+title: COMP30022 IT Project
+description: A comprehensive IT project showcasing three-tier architecture deployment
+baseurl: "/COMP30022-IT-Project"
+url: "https://ryougi-shiky.github.io"
+
+# Use GitHub Pages supported theme
+theme: minima
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+# GitHub Pages supported plugins only
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+header_pages:
+  - README.md
+  - docs/architecture.md
+  - docs/how-to-release-new-version.md
+  - deployment.md
+  - about.md
+
+# Exclude files from build
+exclude:
+  - node_modules/
+  - backend/
+  - frontend/
+  - terraform/
+  - sonarqube/
+  - auto/
+  - deploy/
+  - db/
+  - nginx/
+  - .github/
+  - "*.log"
