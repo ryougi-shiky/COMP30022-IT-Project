@@ -1,6 +1,6 @@
 services:
   sonarqube:
-    image: sonarqube:lts-developer@sha256:b570b6365f21d9b25aa3b4fe197b782e13212cb32c45061dba50ce5a6c0941c6
+    image: sonarqube:lts-developer@sha256:501ccb4d62ea209500c4dc65a372254b819ebe07cd40b82d0325468d58539581
     container_name: sonarqube-server
     ports:
       - "9000:9000"
