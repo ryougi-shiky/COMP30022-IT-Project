@@ -33,3 +33,5 @@ deploy/terraform.tfvars
 *.tfstate
 *.tfstate.backup
 .terraform/
+
+.scannerwork
