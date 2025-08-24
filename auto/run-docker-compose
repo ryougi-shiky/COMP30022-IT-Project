@@ -5,13 +5,11 @@ cd "$(dirname "$0")/.."
 
 echo "-------------------- 🐳 Starting Docker Compose --------------------"
 
-# Environment configuration mapping
 declare -A env_configs=(
   ["local"]="deploy/docker-compose.local.yml"
   ["test"]="deploy/docker-compose.test.yml"
 )
 
-# Validate and set environment configuration
 if [[ -z "${ENV:-}" ]]; then
   echo "❌ ENV variable is not set."
   echo "Please set ENV to one of: ${!env_configs[*]}"
