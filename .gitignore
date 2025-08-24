@@ -20,12 +20,7 @@ socket/
 *.env
 frontend/cypress/screenshots
 *.iml
-./deploy/terraform.tfvars
-deploy/.terraform.lock.hcl
-deploy/.terraform/
-deploy/terraform.tfstate
-deploy/terraform.tfstate.backup
-deploy/terraform.tfvars
+
 
 # Terraform
 *.tfvars
