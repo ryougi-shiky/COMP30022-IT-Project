@@ -1,0 +1,19 @@
+version: "3.9"
+
+
+services:
+    mongo:
+        image: mongo:7
+        restart: always
+        volumes:
+        - mongo_data:/data/db
+        environment:
+        MONGO_INITDB_ROOT_USERNAME: "${mongo_root_username}"
+        MONGO_INITDB_ROOT_PASSWORD: "${mongo_root_password}"
+        ports:
+        - "27017:27017"
+
+
+backend:
+# REPLACE with your built image or build section
+image: ghcr.io/YOUR_USER/mern-back
