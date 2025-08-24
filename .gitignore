@@ -20,12 +20,3 @@ socket/
 *.env
 frontend/cypress/screenshots
 *.iml
-
-
-# Terraform
-*.tfvars
-*.tfstate
-*.tfstate.backup
-.terraform/
-
-.scannerwork
