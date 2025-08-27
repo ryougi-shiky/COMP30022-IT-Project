@@ -2,8 +2,8 @@ name: deploy-gcp-staging.yml
 
 on:
   push:
-#    branches:
-#      - main
+    branches:
+      - "*"
 
 jobs:
   deploy-to-gcp-staging:
@@ -34,13 +34,20 @@ jobs:
       with:
         version: '>= 363.0.0'
 
-    - name: 'Test gcloud CLI'
+    - name: Test gcloud CLI
       run: 'gcloud info'
 
-#    - name: Deploy to GCP Staging
-#      env:
-#        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
-#        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-#        VERSION: ${{ steps.get_version.outputs.VERSION }}
-#      run: |
-#        ./auto/deploy-gcp-staging
+    - name: Terraform Init
+      working-directory: infra/env/dev
+      run: |
+        auto/run-terraform init
+
+    - name: Terraform Plan
+      working-directory: infra/env/dev
+      run: |
+        auto/run-terraform plan -input=false -out=tfplan
+
+    - name: Terraform Apply
+      working-directory: infra/env/dev
+      run: |
+        auto/run-terraform apply -input=false -auto-approve tfplan
