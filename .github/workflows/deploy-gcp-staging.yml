@@ -40,14 +40,14 @@ jobs:
     - name: Terraform Init
       working-directory: infra/env/dev
       run: |
-        auto/run-terraform init
+        ../../../auto/run-terraform init
 
     - name: Terraform Plan
       working-directory: infra/env/dev
       run: |
-        auto/run-terraform plan -input=false -out=tfplan
+        ../../../auto/run-terraform plan -input=false -out=tfplan
 
     - name: Terraform Apply
       working-directory: infra/env/dev
       run: |
-        auto/run-terraform apply -input=false -auto-approve tfplan
+        ../../../auto/run-terraform apply -input=false -auto-approve tfplan
