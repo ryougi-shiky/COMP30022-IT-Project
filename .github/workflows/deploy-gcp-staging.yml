@@ -1,4 +1,4 @@
-name: deploy-gcp-staging.yml
+name: Deploy GCP Staging
 
 on:
   push:
