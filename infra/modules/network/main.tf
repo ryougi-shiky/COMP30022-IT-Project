@@ -22,11 +22,13 @@ resource "google_compute_firewall" "allow_web" {
   name    = "${var.name}-allow-web"
   network = google_compute_network.vpc.name
 
-
-  allow { protocol = "tcp"; ports = ["80", "443"] }
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
   direction     = "INGRESS"
   source_ranges = var.web_source_ranges
-  target_tags = [var.web_tag]
+  target_tags   = [var.web_tag]
 }
 
 
