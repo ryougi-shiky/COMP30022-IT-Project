@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack
+    container_name: localstack_main
+    ports:
+      - "4566:4566"  # AWS service endpoint
+      - "4571:4571"  # Optional: old edge port
+    environment:
+      - SERVICES=ec2
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - ./localstack:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock  # ✅ 允许 LocalStack 启动容器（用于 lambda/docker）
