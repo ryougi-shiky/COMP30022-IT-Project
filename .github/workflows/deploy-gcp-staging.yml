@@ -1,0 +1,46 @@
+name: deploy-gcp-staging.yml
+
+on:
+  push:
+#    branches:
+#      - main
+
+jobs:
+  deploy-to-gcp-staging:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Read version from version.txt
+      id: get_version
+      run: ./auto/read-version
+
+    - name: Authenticate to GCP
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER_STAGING }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+        service_account: 'gh-terraform-deploy-staging@${{ secrets.GCP_PROJECT_ID_STAGING }}.iam.gserviceaccount.com'
+
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v3'
+      with:
+        version: '>= 363.0.0'
+
+    - name: 'Test gcloud CLI'
+      run: 'gcloud info'
+
+#    - name: Deploy to GCP Staging
+#      env:
+#        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_STAGING }}
+#        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+#        VERSION: ${{ steps.get_version.outputs.VERSION }}
+#      run: |
+#        ./auto/deploy-gcp-staging
