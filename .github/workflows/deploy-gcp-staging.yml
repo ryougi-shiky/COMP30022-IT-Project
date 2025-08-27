@@ -43,7 +43,7 @@ jobs:
 
     - name: Terraform Plan
       run: |
-        auto/run-terraform -chdir=env/dev plan -input=false -out=tfplan
+        auto/run-terraform -chdir=env/dev -var="project_id=aniani-staging" -var="mongo_root_password=your-secure-password" plan -input=false -out=tfplan
 
     - name: Terraform Apply
       run: |

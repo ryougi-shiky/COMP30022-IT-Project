@@ -21,6 +21,7 @@ module "vm" {
   source = "../../modules/vm"
 
   name         = local.name
+  project_id   = var.project_id
   zone         = var.zone
   region       = var.region
   machine_type = "e2-medium"
