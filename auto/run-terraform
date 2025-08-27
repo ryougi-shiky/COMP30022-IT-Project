@@ -7,7 +7,7 @@ echo "-------------------- Running Terraform Environment --------------------"
 
 TERRAFORM_IMAGE="hashicorp/terraform:1.13@sha256:2d49794482ac9fb4fc2e9a8542f90777aecab1cf9ad827db9bdc7826cfe9291b"
 
-docker run --rm -it \
+docker run --rm \
   -v "$PWD/infra":/app \
   -w /app \
   ${@:+${TERRAFORM_IMAGE}} \
