@@ -1,0 +1,50 @@
+name: Deploy GCP Staging
+
+on:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  deploy-to-gcp-staging:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Read version from version.txt
+      id: get_version
+      run: ./auto/read-version
+
+    - name: Authenticate to GCP
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER_STAGING }}/locations/global/workloadIdentityPools/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_ID }}/providers/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_PROVIDER_ID }}'
+        service_account: '${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_STAGING }}@${{ secrets.GCP_PROJECT_ID_STAGING }}.iam.gserviceaccount.com'
+
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v3.0.0'
+      with:
+        version: '>= 363.0.0'
+
+    - name: Test gcloud CLI
+      run: 'gcloud info'
+
+    - name: Terraform Init
+      run: |
+        cd infra && ../auto/run-terraform -chdir=env/dev init
+
+    - name: Terraform Plan
+      run: |
+        cd infra && ../auto/run-terraform -chdir=env/dev -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -var="mongo_root_password=${{ secrets.MONGO_ROOT_PASSWORD }}" plan -input=false -out=terraform.plan
+
+    - name: Terraform Apply
+      run: |
+        cd infra && ../auto/run-terraform -chdir=env/dev apply -input=false -auto-approve terraform.plan
