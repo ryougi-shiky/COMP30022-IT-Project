@@ -39,12 +39,12 @@ jobs:
 
     - name: Terraform Init
       run: |
-        cd infra && ../auto/run-terraform -chdir=env/dev init
+        cd infra && ../auto/run-terraform init
 
     - name: Terraform Plan
       run: |
-        cd infra && ../auto/run-terraform -chdir=env/dev -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -var="mongo_root_password=${{ secrets.MONGO_ROOT_PASSWORD }}" plan -input=false -out=terraform.plan
+        cd infra && ../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -var="mongo_password=${{ secrets.MONGO_ROOT_PASSWORD }}" -input=false -out=terraform.plan
 
     - name: Terraform Apply
       run: |
-        cd infra && ../auto/run-terraform -chdir=env/dev apply -input=false -auto-approve terraform.plan
+        cd infra && ../auto/run-terraform apply -input=false -auto-approve terraform.plan
