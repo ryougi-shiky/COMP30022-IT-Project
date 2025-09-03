@@ -32,7 +32,7 @@ override.tf
 override.tf.json
 ._*
 .terraform.lock.hcl
-
+infra/terraform.tfvars.secret
 
 # SA keys / secrets
 sa-key.json

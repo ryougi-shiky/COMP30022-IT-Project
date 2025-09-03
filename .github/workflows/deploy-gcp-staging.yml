@@ -25,9 +25,10 @@ jobs:
       id: 'auth'
       uses: 'google-github-actions/auth@v2'
       with:
-        token_format: 'access_token'
         workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER_STAGING }}/locations/global/workloadIdentityPools/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_ID }}/providers/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_PROVIDER_ID }}'
         service_account: '${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_STAGING }}@${{ secrets.GCP_PROJECT_ID_STAGING }}.iam.gserviceaccount.com'
+        create_credentials_file: true
+        export_environment_variables: true
 
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v3.0.0'

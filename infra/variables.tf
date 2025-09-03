@@ -44,3 +44,9 @@ variable "mongo_password" {
   type        = string
   sensitive   = true
 }
+
+variable "credentials_file" {
+  description = "Path to the service account key file (optional, for local development)"
+  type        = string
+  default     = null
+}
