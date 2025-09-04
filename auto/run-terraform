@@ -11,6 +11,9 @@ TERRAFORM_IMAGE="hashicorp/terraform:1.13@sha256:2d49794482ac9fb4fc2e9a8542f9077
 docker run --rm \
   -v "$PWD/infra":/app \
   -v "$HOME/.config/gcloud:/root/.config/gcloud:ro" \
+  -e GOOGLE_OAUTH_ACCESS_TOKEN \
+  -e GOOGLE_APPLICATION_CREDENTIALS \
+  -e CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE \
   -w /app \
   ${TERRAFORM_IMAGE} \
   "$@"
