@@ -18,7 +18,7 @@ variable "zone" {
 variable "vm_name" {
   description = "VM instance name"
   type        = string
-  default     = "comp30022-vm-staging"
+  default     = "aniani-vm-staging"
 }
 
 variable "machine_type" {
