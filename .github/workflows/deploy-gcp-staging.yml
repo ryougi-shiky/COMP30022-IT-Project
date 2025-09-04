@@ -3,7 +3,7 @@ name: Deploy Staging to GCP VM
 on:
   push:
     branches:
-      - "main"
+      - "*"
 
 jobs:
   deploy-staging-to-gcp-vm:
