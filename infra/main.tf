@@ -12,6 +12,7 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
+  access_token = try(env.GOOGLE_OAUTH_ACCESS_TOKEN, null)
 }
 
 # 创建静态外部 IP
@@ -27,11 +28,11 @@ resource "google_compute_firewall" "allow_app" {
 
   allow {
     protocol = "tcp"
-    ports    = ["3000"]
+    ports = ["3000"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["app-server"]
+  target_tags = ["app-server"]
 }
 
 # 创建防火墙规则允许 SSH
@@ -41,11 +42,11 @@ resource "google_compute_firewall" "allow_ssh" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports = ["22"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["app-server"]
+  target_tags = ["app-server"]
 }
 
 # 创建 VM 实例

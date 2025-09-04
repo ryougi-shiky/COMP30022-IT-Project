@@ -12,8 +12,6 @@ docker run --rm \
   -v "$PWD/infra":/app \
   -v "$HOME/.config/gcloud:/root/.config/gcloud:ro" \
   -e GOOGLE_OAUTH_ACCESS_TOKEN \
-  -e GOOGLE_APPLICATION_CREDENTIALS \
-  -e CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE \
   -w /app \
   ${TERRAFORM_IMAGE} \
   "$@"
