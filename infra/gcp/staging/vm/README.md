@@ -27,10 +27,11 @@ gcloud config set project <project-id>
 ### 2. Deploy infrastructure
 
 ```bash
-cd infra
-../auto/run-terraform init
-../auto/run-terraform plan
-../auto/run-terraform apply
+./auto/run-terraform -chdir=gcp/staging/vm init
+
+./auto/run-terraform -chdir=gcp/staging/vm plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+
+./auto/run-terraform -chdir=gcp/staging/vm apply -input=false -auto-approve terraform.plan
 ```
 
 ### 3. Access the app
