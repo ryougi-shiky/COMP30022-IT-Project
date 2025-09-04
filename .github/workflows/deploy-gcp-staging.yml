@@ -29,6 +29,9 @@ jobs:
         workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER_STAGING }}/locations/global/workloadIdentityPools/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_ID }}/providers/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_PROVIDER_ID }}'
         service_account: '${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_STAGING }}@${{ secrets.GCP_PROJECT_ID_STAGING }}.iam.gserviceaccount.com'
 
+    - name: Set env for Terraform
+      run: echo "GOOGLE_OAUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
+
     - name: Set up Cloud SDK
       uses: 'google-github-actions/setup-gcloud@v3.0.0'
       with:
@@ -43,7 +46,7 @@ jobs:
 
     - name: Terraform Plan
       run: |
-        cd infra && export GOOGLE_OAUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} && ../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+        cd infra && ../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
 
     - name: Terraform Apply
       run: |
