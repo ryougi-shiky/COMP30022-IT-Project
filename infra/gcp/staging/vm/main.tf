@@ -72,3 +72,4 @@ resource "google_compute_instance" "vm" {
       nat_ip = google_compute_address.vm_ip.address
     }
   }
+}
