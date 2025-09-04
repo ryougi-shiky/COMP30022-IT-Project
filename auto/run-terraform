@@ -10,6 +10,7 @@ TERRAFORM_IMAGE="hashicorp/terraform:1.13@sha256:2d49794482ac9fb4fc2e9a8542f9077
 # If you need to go inside of this container, please add '--entrypoint /bin/sh' to override the original entrypoint 'terraform'
 docker run --rm \
   -v "$PWD/infra":/app \
+  -v "$HOME/.config/gcloud:/root/.config/gcloud:ro" \
   -w /app \
   ${TERRAFORM_IMAGE} \
   "$@"

@@ -1,94 +1,125 @@
-# Enable required APIs
-resource "google_project_service" "compute" {
-  service = "compute.googleapis.com"
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 5.0"
+    }
+  }
 }
 
-# Create VPC network
-resource "google_compute_network" "vpc" {
-  name                    = "${var.app_name}-vpc"
-  auto_create_subnetworks = false
-  depends_on              = [google_project_service.compute]
+provider "google" {
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
 }
 
-# Create subnet
-resource "google_compute_subnetwork" "subnet" {
-  name          = "${var.app_name}-subnet"
-  ip_cidr_range = "10.0.1.0/24"
-  region        = var.region
-  network       = google_compute_network.vpc.id
+# 创建静态外部 IP
+resource "google_compute_address" "vm_ip" {
+  name   = "${var.vm_name}-ip"
+  region = var.region
 }
 
-# Create firewall rule for HTTP/HTTPS
-resource "google_compute_firewall" "allow_web" {
-  name    = "${var.app_name}-allow-web"
-  network = google_compute_network.vpc.name
+# 创建防火墙规则允许 3000 端口
+resource "google_compute_firewall" "allow_app" {
+  name    = "${var.vm_name}-allow-app"
+  network = "default"
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "443", "3000"]  # Include 3000 for React dev server
+    ports    = ["3000"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["web-server"]
+  target_tags   = ["app-server"]
 }
 
-# Create firewall rule for SSH
+# 创建防火墙规则允许 SSH
 resource "google_compute_firewall" "allow_ssh" {
-  name    = "${var.app_name}-allow-ssh"
-  network = google_compute_network.vpc.name
+  name    = "${var.vm_name}-allow-ssh"
+  network = "default"
 
   allow {
     protocol = "tcp"
     ports    = ["22"]
   }
 
-  source_ranges = ["0.0.0.0/0"]  # Consider restricting this in production
-  target_tags   = ["web-server"]
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["app-server"]
 }
 
-# Reserve static IP
-resource "google_compute_address" "static_ip" {
-  name   = "${var.app_name}-ip"
-  region = var.region
-}
-
-# Create VM instance
-resource "google_compute_instance" "app_server" {
-  name         = "${var.app_name}-server"
+# 创建 VM 实例
+resource "google_compute_instance" "vm" {
+  name         = var.vm_name
   machine_type = var.machine_type
   zone         = var.zone
-  tags         = ["web-server"]
+
+  tags = ["app-server"]
 
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-12"
+      image = "ubuntu-os-cloud/ubuntu-2204-lts"
       size  = 20
-      type  = "pd-balanced"
     }
   }
 
   network_interface {
-    subnetwork = google_compute_subnetwork.subnet.id
+    network = "default"
     access_config {
-      nat_ip = google_compute_address.static_ip.address
+      nat_ip = google_compute_address.vm_ip.address
     }
   }
 
-  # Use preemptible instance for cost savings
-  scheduling {
-    preemptible        = var.preemptible
-    automatic_restart  = !var.preemptible
-    provisioning_model = var.preemptible ? "SPOT" : "STANDARD"
+  metadata_startup_script = <<-EOF
+    #!/bin/bash
+    apt-get update
+    apt-get install -y docker.io docker-compose
+    systemctl start docker
+    systemctl enable docker
+    usermod -aG docker $USER
+
+    # 创建简单的测试应用
+    mkdir -p /opt/app
+    cat > /opt/app/package.json << 'EOL'
+{
+  "name": "test-app",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.0"
   }
+}
+EOL
 
-  metadata_startup_script = templatefile("${path.module}/startup.sh", {
-    mongo_username = var.mongo_username
-    mongo_password = var.mongo_password
-  })
+    cat > /opt/app/server.js << 'EOL'
+const express = require('express');
+const app = express();
+const port = 3000;
 
-  depends_on = [
-    google_compute_subnetwork.subnet,
-    google_compute_firewall.allow_web,
-    google_compute_firewall.allow_ssh
-  ]
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Hello from COMP30022 VM!',
+    timestamp: new Date().toISOString(),
+    hostname: require('os').hostname()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy' });
+});
+
+app.listen(port, '0.0.0.0', () => {
+  console.log('App running on port ' + port);
+});
+EOL
+
+    # 安装 Node.js
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    apt-get install -y nodejs
+
+    # 启动应用
+    cd /opt/app
+    npm install
+    nohup node server.js > /var/log/app.log 2>&1 &
+  EOF
 }
