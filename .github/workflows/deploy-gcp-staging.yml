@@ -1,0 +1,53 @@
+name: Deploy Staging to GCP VM
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  deploy-staging-to-gcp-vm:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Read version from version.txt
+      id: get_version
+      run: ./auto/read-version
+
+    - name: Authenticate to GCP
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: access_token
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER_STAGING }}/locations/global/workloadIdentityPools/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_ID }}/providers/${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER_POOL_PROVIDER_ID }}'
+        service_account: '${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_STAGING }}@${{ secrets.GCP_PROJECT_ID_STAGING }}.iam.gserviceaccount.com'
+
+    - name: Set env for Terraform
+      run: echo "GOOGLE_OAUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
+
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v3.0.0'
+      with:
+        version: '>= 363.0.0'
+
+    - name: Test gcloud CLI
+      run: 'gcloud info'
+
+    - name: Terraform Init
+      run: |
+        ./auto/run-terraform -chdir=gcp/staging/vm init
+
+    - name: Terraform Plan
+      run: |
+        ./auto/run-terraform -chdir=gcp/staging/vm plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+
+    - name: Terraform Apply
+      run: |
+        ./auto/run-terraform -chdir=gcp/staging/vm apply -input=false -auto-approve terraform.plan

@@ -20,3 +20,19 @@ socket/
 *.env
 frontend/cypress/screenshots
 *.iml
+
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+override.tf
+override.tf.json
+._*
+.terraform.lock.hcl
+infra/terraform.tfvars.secret
+
+# SA keys / secrets
+sa-key.json
