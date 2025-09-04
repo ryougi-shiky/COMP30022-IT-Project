@@ -61,3 +61,11 @@ This deployment is integrated with GitHub workflow. You only need to set up thes
 cd infra
 ../auto/run-terraform destroy
 ```
+## Update GCS bucket (tfstate)
+
+Since this bucket must not be change frequently, it has to be manually update from local machine for now...
+
+1. `./auto/run-terraform -chdir=gcp/staging/vm/gcs-tfstate init`
+2. `./auto/run-terraform -chdir=gcp/staging/vm/gcs-tfstate import google_storage_bucket.tfstate aniani-staging-gcp-vm-tfstate`
+3. `./auto/run-terraform -chdir=gcp/staging/vm/gcs-tfstate plan -input=false -out=terraform.plan`
+4. `./auto/run-terraform -chdir=gcp/staging/vm/gcs-tfstate apply -input=false -auto-approve terraform.plan`
