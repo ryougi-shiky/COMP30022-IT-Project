@@ -12,7 +12,7 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
-  access_token = try(env.GOOGLE_OAUTH_ACCESS_TOKEN, null)
+  access_token = try(get_env("GOOGLE_OAUTH_ACCESS_TOKEN", null), null)
 }
 
 # 创建静态外部 IP
