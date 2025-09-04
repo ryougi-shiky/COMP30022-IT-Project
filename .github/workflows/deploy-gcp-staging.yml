@@ -1,4 +1,4 @@
-name: Deploy GCP Staging
+name: Deploy Staging to GCP VM
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "*"
 
 jobs:
-  deploy-to-gcp-staging:
+  deploy-staging-to-gcp-vm:
     runs-on: ubuntu-22.04
 
     permissions:
@@ -42,12 +42,12 @@ jobs:
 
     - name: Terraform Init
       run: |
-        cd infra && ../auto/run-terraform init
+        cd infra/gcp/staging/vm && ../../../../auto/run-terraform init
 
     - name: Terraform Plan
       run: |
-        cd infra && ../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+        cd infra/gcp/staging/vm && ../../../../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
 
     - name: Terraform Apply
       run: |
-        cd infra && ../auto/run-terraform apply -input=false -auto-approve terraform.plan
+        cd infra/gcp/staging/vm && ../../../../auto/run-terraform apply -input=false -auto-approve terraform.plan

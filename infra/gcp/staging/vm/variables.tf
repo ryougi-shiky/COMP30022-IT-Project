@@ -1,28 +1,28 @@
 variable "project_id" {
-  description = "GCP 项目 ID"
+  description = "GCP project ID"
   type        = string
 }
 
 variable "region" {
-  description = "GCP 区域"
+  description = "GCP region"
   type        = string
   default     = "us-central1"
 }
 
 variable "zone" {
-  description = "GCP 可用区"
+  description = "GCP AZ"
   type        = string
   default     = "us-central1-a"
 }
 
 variable "vm_name" {
-  description = "VM 实例名称"
+  description = "VM instance name"
   type        = string
-  default     = "comp30022-vm"
+  default     = "comp30022-vm-staging"
 }
 
 variable "machine_type" {
-  description = "VM 机器类型"
+  description = "VM instance type"
   type        = string
-  default     = "e2-medium"
+  default     = "e2-small"
 }
