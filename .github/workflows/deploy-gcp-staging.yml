@@ -42,7 +42,7 @@ jobs:
 
     - name: Terraform Init
       run: |
-        ./auto/run-terraform -chdir=gcp/staging/vm init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_KEY_TFSTATE }}" -reconfigure
+        ./auto/run-terraform -chdir=gcp/staging/vm init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_PREFIX_TFSTATE }}" -reconfigure
 
     - name: Terraform Plan
       run: |
