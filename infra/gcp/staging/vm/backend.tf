@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
     bucket = "aniani-staging-gcp-vm-tfstate"
-    prefix = "staging/vm"
+    key = "staging/vm/aniani-staging-gcp-vm.tfstate"
   }
 }
