@@ -13,6 +13,8 @@ provider "google" {
   region  = var.region
   zone    = var.zone
   access_token = try(get_env("GOOGLE_OAUTH_ACCESS_TOKEN", null), null)
+  credentials = try(get_env("GOOGLE_APPLICATION_CREDENTIALS", null), null)
+
 }
 
 # 创建静态外部 IP

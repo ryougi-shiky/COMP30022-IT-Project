@@ -43,7 +43,7 @@ jobs:
 
     - name: Terraform Plan
       run: |
-        cd infra && ../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+        cd infra && export GOOGLE_OAUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }} && ../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
 
     - name: Terraform Apply
       run: |
