@@ -57,7 +57,6 @@ This deployment is integrated with GitHub workflow. You only need to set up thes
 ## Delete Resources
 
 ```bash
-# 删除所有创建的资源
 cd infra
 ../auto/run-terraform destroy
 ```

@@ -42,12 +42,12 @@ jobs:
 
     - name: Terraform Init
       run: |
-        cd infra/gcp/staging/vm && ../../../../auto/run-terraform init
+        cd infra/gcp/staging/vm && ../../../auto/run-terraform init
 
     - name: Terraform Plan
       run: |
-        cd infra/gcp/staging/vm && ../../../../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+        cd infra/gcp/staging/vm && ../../../auto/run-terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
 
     - name: Terraform Apply
       run: |
-        cd infra/gcp/staging/vm && ../../../../auto/run-terraform apply -input=false -auto-approve terraform.plan
+        cd infra/gcp/staging/vm && ../../../auto/run-terraform apply -input=false -auto-approve terraform.plan
