@@ -6,7 +6,7 @@ This terraform configuration will deploy the app to a GCP VM instance.
 
 - **VM instance**: Ubuntu 22.04 LTS, e2-small
 - **Static External IP**: For accessing from the internet
-- **Firewall RUle**: Allow SSH (22) and app (3000) ports
+- **Firewall Rule**: Allow SSH (22) and app (3000) ports
 - **App**: Express.js app running on port 3000
 
 ## Deploy from local machine
