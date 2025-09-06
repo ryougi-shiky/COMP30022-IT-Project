@@ -40,7 +40,7 @@ variable "docker_hub_password" {
   sensitive   = true
 }
 
-variable "version" {
+variable "app_version" {
   description = "Image version/tag to deploy"
   type        = string
   default     = "latest"
