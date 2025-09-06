@@ -50,7 +50,7 @@ jobs:
           -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
           -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
           -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
-          -var="version=${{ steps.get_version.outputs.VERSION }}" \
+          -var="app_version=${{ steps.get_version.outputs.VERSION }}" \
           -input=false -out=terraform.plan
 
     - name: Terraform Apply
@@ -70,5 +70,5 @@ jobs:
           -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
           -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
           -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
-          -var="version=${{ steps.get_version.outputs.VERSION }}" \
+          -var="app_version=${{ steps.get_version.outputs.VERSION }}" \
           -input=false -auto-approve

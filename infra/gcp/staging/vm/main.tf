@@ -79,6 +79,6 @@ resource "google_compute_instance" "vm" {
   metadata = {
     DOCKER_HUB_USERNAME = var.docker_hub_username
     DOCKER_HUB_PASSWORD = var.docker_hub_password
-    VERSION             = var.version
+    VERSION             = var.app_version
   }
 }
