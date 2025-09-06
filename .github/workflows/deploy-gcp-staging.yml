@@ -3,7 +3,7 @@ name: Deploy Staging to GCP VM
 on:
   push:
     branches:
-      - "main"
+      - "*"
 
 jobs:
   deploy-staging-to-gcp-vm:
@@ -51,3 +51,14 @@ jobs:
     - name: Terraform Apply
       run: |
         ./auto/run-terraform -chdir=gcp/staging/vm apply -input=false -auto-approve terraform.plan
+
+    # Ensure resources are cleaned up even if previous steps fail
+    - name: Terraform Init (for Destroy)
+      if: always()
+      run: |
+        ./auto/run-terraform -chdir=gcp/staging/vm init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_PREFIX_TFSTATE }}" -reconfigure
+
+    - name: Terraform Destroy
+      if: always()
+      run: |
+        ./auto/run-terraform -chdir=gcp/staging/vm destroy -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -auto-approve
