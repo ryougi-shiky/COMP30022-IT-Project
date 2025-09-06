@@ -58,17 +58,17 @@ jobs:
         ./auto/run-terraform -chdir=gcp/staging/vm apply -input=false -auto-approve terraform.plan
 
     # Ensure resources are cleaned up even if previous steps fail
-    - name: Terraform Init (for Destroy)
-      if: always()
-      run: |
-        ./auto/run-terraform -chdir=gcp/staging/vm init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_PREFIX_TFSTATE }}" -reconfigure
-
-    - name: Terraform Destroy
-      if: always()
-      run: |
-        ./auto/run-terraform -chdir=gcp/staging/vm destroy \
-          -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
-          -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
-          -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
-          -var="app_version=${{ steps.get_version.outputs.VERSION }}" \
-          -input=false -auto-approve
+#    - name: Terraform Init (for Destroy)
+#      if: always()
+#      run: |
+#        ./auto/run-terraform -chdir=gcp/staging/vm init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_PREFIX_TFSTATE }}" -reconfigure
+#
+#    - name: Terraform Destroy
+#      if: always()
+#      run: |
+#        ./auto/run-terraform -chdir=gcp/staging/vm destroy \
+#          -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
+#          -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
+#          -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
+#          -var="app_version=${{ steps.get_version.outputs.VERSION }}" \
+#          -input=false -auto-approve
