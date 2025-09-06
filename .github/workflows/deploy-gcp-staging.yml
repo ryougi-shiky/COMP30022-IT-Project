@@ -3,7 +3,7 @@ name: Deploy Staging to GCP VM
 on:
   push:
     branches:
-      - "release/**"
+      - "deploy-app-staging"
 
 jobs:
   deploy-staging-to-gcp-vm:
@@ -46,7 +46,12 @@ jobs:
 
     - name: Terraform Plan
       run: |
-        ./auto/run-terraform -chdir=gcp/staging/vm plan -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -out=terraform.plan
+        ./auto/run-terraform -chdir=gcp/staging/vm plan \
+          -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
+          -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
+          -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
+          -var="version=${{ steps.get_version.outputs.VERSION }}" \
+          -input=false -out=terraform.plan
 
     - name: Terraform Apply
       run: |
@@ -61,4 +66,9 @@ jobs:
     - name: Terraform Destroy
       if: always()
       run: |
-        ./auto/run-terraform -chdir=gcp/staging/vm destroy -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" -input=false -auto-approve
+        ./auto/run-terraform -chdir=gcp/staging/vm destroy \
+          -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
+          -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
+          -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
+          -var="version=${{ steps.get_version.outputs.VERSION }}" \
+          -input=false -auto-approve

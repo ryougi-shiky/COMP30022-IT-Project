@@ -71,4 +71,14 @@ resource "google_compute_instance" "vm" {
       nat_ip = google_compute_address.vm_ip.address
     }
   }
+
+  # Run a startup script on boot to deploy the app
+  metadata_startup_script = file("${path.module}/startup.sh")
+
+  # Pass variables via instance metadata for the startup script to read
+  metadata = {
+    DOCKER_HUB_USERNAME = var.docker_hub_username
+    DOCKER_HUB_PASSWORD = var.docker_hub_password
+    VERSION             = var.version
+  }
 }

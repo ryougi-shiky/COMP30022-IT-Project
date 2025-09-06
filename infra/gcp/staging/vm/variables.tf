@@ -26,3 +26,22 @@ variable "machine_type" {
   type        = string
   default     = "e2-small"
 }
+
+# Docker Hub info for pulling published images
+variable "docker_hub_username" {
+  description = "Docker Hub username for pulling images"
+  type        = string
+}
+
+variable "docker_hub_password" {
+  description = "Docker Hub password/token (optional if images are public)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "version" {
+  description = "Image version/tag to deploy"
+  type        = string
+  default     = "latest"
+}
