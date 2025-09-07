@@ -25,10 +25,25 @@ fi
 
 log "Using Docker Hub user=${DOCKER_HUB_USERNAME}, version=${VERSION}"
 
+# Add Docker sources
+echo \
+  "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Update and Install Docker Engine + Compose Plugin
+apt-get update
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Test docker compose cli
+docker compose version
+
 # Install Docker and compose plugin (Ubuntu 22.04)
 log "Installing Docker..."
 apt-get update -y
-DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose-plugin git
+DEBIAN_FRONTEND=noninteractive apt install -y docker.io docker-compose-plugin git
 systemctl enable --now docker
 usermod -aG docker ${USER}
 
