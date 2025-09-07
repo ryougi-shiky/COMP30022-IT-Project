@@ -52,7 +52,7 @@ jobs:
         DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         VERSION: ${{ steps.get_version.outputs.VERSION }}
       run: |
-        ./auto/render-docker-compose "deploy/docker-compose.temp.yml" "deploy/docker-compose.${ENV}.yml" "../infra/gcp/staging/vm/docker-compose.yml"
+        ./auto/render-docker-compose "deploy/docker-compose.temp.yml" "deploy/docker-compose.${ENV}.yml" "./infra/gcp/staging/vm/docker-compose.yml"
 
     - name: Terraform Init
       run: |
