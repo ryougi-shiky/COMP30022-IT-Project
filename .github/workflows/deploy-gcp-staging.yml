@@ -40,6 +40,20 @@ jobs:
     - name: Test gcloud CLI
       run: 'gcloud info'
 
+#    - name: Log in to Docker Hub
+#      uses: docker/login-action@v3
+#      with:
+#        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    - name: Render Docker Compose
+      env:
+        ENV: "test"
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        VERSION: ${{ steps.get_version.outputs.VERSION }}
+      run: |
+        ./auto/render-docker-compose "deploy/docker-compose.temp.yml" "deploy/docker-compose.${ENV}.yml" "../infra/gcp/staging/vm/docker-compose.yml"
+
     - name: Terraform Init
       run: |
         ./auto/run-terraform -chdir=gcp/staging/vm init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_PREFIX_TFSTATE }}" -reconfigure
