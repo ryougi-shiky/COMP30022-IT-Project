@@ -28,9 +28,9 @@ log "Using Docker Hub user=${DOCKER_HUB_USERNAME}, version=${VERSION}"
 # Install Docker and compose plugin (Ubuntu 22.04)
 log "Installing Docker..."
 apt-get update -y
-DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose-plugin
+DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io docker-compose-plugin git
 systemctl enable --now docker
-usermod -aG docker ubuntu || true
+usermod -aG docker ${USER}
 
 # Login to Docker Hub if password/token provided
 if [[ -n "${DOCKER_HUB_PASSWORD}" ]]; then
@@ -44,50 +44,6 @@ APP_DIR="/opt/aniani"
 mkdir -p "${APP_DIR}"
 cd "${APP_DIR}"
 
-# Render docker-compose.yml using provided images
-cat > docker-compose.yml <<EOF
-version: "3.9"
-services:
-  backend:
-    image: ${DOCKER_HUB_USERNAME}/forum-backend:${VERSION}
-    container_name: backend
-    depends_on:
-      - mongodb
-    environment:
-      MONGODB_URI: "mongodb://mongodb:27017"
-      MONGODB_NAME: "ani"
-      NODE_ENV: "production"
-      PORT: "17000"
-      CORS_WHITELIST: "*"
-    restart: always
-    networks: [app-network]
-
-  mongodb:
-    image: ${DOCKER_HUB_USERNAME}/forum-mongodb:${VERSION}
-    container_name: mongodb
-    volumes:
-      - mongodb_data:/data/db
-    restart: always
-    networks: [app-network]
-
-  nginx:
-    image: ${DOCKER_HUB_USERNAME}/forum-nginx:${VERSION}
-    container_name: nginx
-    depends_on:
-      - backend
-    ports:
-      - "3000:3000"
-    restart: always
-    networks: [app-network]
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  mongodb_data:
-    name: mongodb_data
-EOF
 
 log "Pulling images..."
 docker compose pull || true
