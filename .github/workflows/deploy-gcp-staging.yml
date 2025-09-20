@@ -33,7 +33,7 @@ jobs:
       run: echo "GOOGLE_OAUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
 
     - name: Set up Cloud SDK
-      uses: 'google-github-actions/setup-gcloud@v3.0.0'
+      uses: 'google-github-actions/setup-gcloud@v3.0.1'
       with:
         version: '>= 363.0.0'
 
