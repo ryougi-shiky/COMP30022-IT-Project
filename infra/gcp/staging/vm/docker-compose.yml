@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+
+  backend:
+    image: ${DOCKER_HUB_USERNAME}/forum-backend:${VERSION}
+    container_name: backend
+    ports:
+      - "17000:17000"
+    environment:
+      MONGODB_URI: "mongodb://mongodb:27017"
+      MONGODB_NAME: "ani"
+      NODE_ENV: "production"
+      PORT: "17000"
+      CORS_WHITELIST: "http://localhost:3000"
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mongodb:
+    image: ${DOCKER_HUB_USERNAME}/forum-mongodb:${VERSION}
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=ani
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  nginx:
+    image: ${DOCKER_HUB_USERNAME}/forum-nginx:${VERSION}
+    container_name: nginx
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

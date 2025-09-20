@@ -36,6 +36,34 @@ resource "google_compute_firewall" "allow_app" {
   target_tags = ["app-server"]
 }
 
+# Create firewall rule to allow HTTP/HTTPS
+resource "google_compute_firewall" "allow_http_https" {
+  name    = "${var.vm_name}-allow-http-https"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports = ["80", "443"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["app-server"]
+}
+
+# Create firewall rule to allow backend port for debugging
+resource "google_compute_firewall" "allow_backend" {
+  name    = "${var.vm_name}-allow-backend"
+  network = "default"
+
+  allow {
+    protocol = "tcp"
+    ports = ["17000"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["app-server"]
+}
+
 # Create firewall rule to allow SSH
 resource "google_compute_firewall" "allow_ssh" {
   name    = "${var.vm_name}-allow-ssh"
@@ -74,7 +102,8 @@ resource "google_compute_instance" "vm" {
 
   # Pass variables via instance metadata for the startup script to read
   metadata = {
-    startup_script = file("${path.module}/startup.sh")
+    startup-script = file("${path.module}/startup.sh")
+    docker-compose-yml = file("${path.module}/docker-compose.yml")
     DOCKER_HUB_USERNAME = var.docker_hub_username
     DOCKER_HUB_PASSWORD = var.docker_hub_password
     VERSION             = var.app_version
