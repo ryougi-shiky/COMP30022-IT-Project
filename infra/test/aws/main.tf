@@ -169,7 +169,7 @@ resource "aws_efs_access_point" "mongo_ap" {
 
 # create mount targets for each public subnet
 resource "aws_efs_mount_target" "mt" {
-  for_each = toset(module.vpc.public_subnets)
+  for_each = { for idx, subnet_id in module.vpc.public_subnets : idx => subnet_id }
   file_system_id = aws_efs_file_system.mongo.id
   subnet_id      = each.key
   security_groups = [aws_security_group.ecs.id]
