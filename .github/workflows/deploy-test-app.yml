@@ -60,15 +60,15 @@ jobs:
     - name: Terraform Deploy App
       run: |
         cd infra/test/aws
-        
-        cat > terraform.tfvars <<EOF
-        docker_hub_username = "${{ secrets.DOCKER_HUB_USERNAME }}"
-        docker_hub_password = "${{ secrets.DOCKER_HUB_PASSWORD }}"
-        EOF
-        
         terraform init
-        terraform plan
-        terraform apply -auto-approve
+        
+        terraform plan \
+          -var "docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
+          -var "docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}"
+        terraform apply \
+          -var "docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
+          -var "docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
+          -auto-approve
 
 #    - name: Save Terraform state
 #      uses: actions/upload-artifact@v4
