@@ -18,7 +18,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Terraform Init + Apply (IAM Role only)
+    - name: Terraform Init + Plan + Apply (IAM Role only)
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
         terraform init
@@ -37,10 +37,10 @@ jobs:
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE_TERRAFORM_PLAYGROUND_USER }}
+        role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Terraform Init + Apply (full infra)
+    - name: Terraform Init + Plan + Apply (full infra)
       run: |
         cd infra/test/aws
         terraform init
