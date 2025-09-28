@@ -31,7 +31,7 @@ jobs:
 #      if: env.ROLE_EXISTS == 'false'
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
-        terraform destroy
+#        terraform destroy
         terraform init
         terraform plan
         terraform apply -auto-approve
