@@ -70,11 +70,11 @@ jobs:
         terraform plan
         terraform apply -auto-approve
 
-    - name: Save Terraform state
-      uses: actions/upload-artifact@v4
-      with:
-        name: terraform.tfstate
-        path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
+#    - name: Save Terraform state
+#      uses: actions/upload-artifact@v4
+#      with:
+#        name: terraform.tfstate
+#        path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
 
     - name: Output ALB
       run: |
