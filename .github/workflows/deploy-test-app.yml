@@ -28,10 +28,8 @@ jobs:
         fi
 
     - name: Terraform Init + Plan + Apply (IAM Role only)
-#      if: env.ROLE_EXISTS == 'false'
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
-#        terraform destroy
         terraform init
         terraform plan
         terraform apply -auto-approve
