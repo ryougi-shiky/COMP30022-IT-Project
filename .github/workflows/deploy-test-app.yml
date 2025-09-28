@@ -34,6 +34,13 @@ jobs:
         terraform plan
         terraform apply -auto-approve
 
+    - name: Save Terraform state
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform.tfstate
+        path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
+
+
   deploy-test-app-to-aws-ecs-fargate:
     runs-on: ubuntu-22.04
     needs: bootstrap-iam-role
@@ -84,6 +91,12 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Download Terraform state
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform.tfstate
+        path: infra/modules/github-actions-oidc-role/aws/iam-test
 
     - name: Terraform Destroy IAM
       run: |
