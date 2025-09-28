@@ -62,8 +62,24 @@ jobs:
         cd infra/aws/test
         echo "ALB: $(../.. /auto/run-terraform output -raw alb_dns)"
 
-#    - name: Terraform Destroy IAM
-#      if: always()
-#      run: |
-#        cd infra/modules/github-actions-oidc-role/aws/iam-test
-#        terraform destroy
+  post-deploy-destroy-resources:
+    runs-on: ubuntu-22.04
+
+    needs:
+      - deploy-test-app-to-aws-ecs-fargate
+      - bootstrap-iam-role
+
+    if: always()
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Terraform Destroy IAM
+      run: |
+        cd infra/modules/github-actions-oidc-role/aws/iam-test
+        terraform init
+        terraform plan
+        terraform destroy
