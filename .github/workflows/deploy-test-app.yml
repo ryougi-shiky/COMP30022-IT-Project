@@ -52,12 +52,8 @@ jobs:
         cd infra/aws/test
         echo "ALB: $(../.. /auto/run-terraform output -raw alb_dns)"
 
-#    - name: Terraform Destroy
-#      if: always()
-#      run: |
-#        ./auto/run-terraform -chdir=test/aws destroy \
-#          -var="project_id=${{ secrets.GCP_PROJECT_ID_STAGING }}" \
-#          -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
-#          -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
-#          -var="app_version=${{ steps.get_version.outputs.VERSION }}" \
-#          -input=false -auto-approve
+    - name: Terraform Destroy IAM
+      if: always()
+      run: |
+        cd infra/modules/github-actions-oidc-role/aws/iam-test
+        terraform destroy
