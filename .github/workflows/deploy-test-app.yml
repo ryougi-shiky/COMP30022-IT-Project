@@ -62,7 +62,10 @@ jobs:
         cd infra/test/aws
         terraform init
         terraform plan
-        terraform apply -auto-approve
+        terraform apply \
+          -var "docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
+          -var "docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
+          -auto-approve
 
     - name: Output ALB
       run: |
