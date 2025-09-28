@@ -1,6 +1,6 @@
 resource "aws_iam_openid_connect_provider" "github" {
-  url             = "https://token.actions.githubusercontent.com"
-  client_id_list  = ["sts.amazonaws.com"]
+  url = "https://token.actions.githubusercontent.com"
+  client_id_list = ["sts.amazonaws.com"]
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] # 固定的 GitHub OIDC thumbprint
 }
 
@@ -8,20 +8,26 @@ resource "aws_iam_role" "github_actions_role" {
   name = var.role_name
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Federated = aws_iam_openid_connect_provider.github.arn
-      },
-      Action = "sts:AssumeRoleWithWebIdentity",
-      Condition = {
-        StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
+          }
+          StringEquals = {
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
         }
       }
-    }]
+    ]
   })
+
 }
 
 # ECS + Logs + ALB + (optional ECR) 权限
@@ -34,8 +40,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
     Statement = [
       # ECS
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "ecs:UpdateService",
           "ecs:RegisterTaskDefinition",
           "ecs:DescribeServices",
@@ -49,8 +55,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
       },
       # CloudWatch Logs
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
@@ -59,8 +65,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
       },
       # ALB
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "elasticloadbalancing:Describe*",
           "elasticloadbalancing:RegisterTargets",
           "elasticloadbalancing:DeregisterTargets"
@@ -69,8 +75,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
       },
       # ECR
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "ecr:GetAuthorizationToken",
           "ecr:BatchGetImage",
           "ecr:GetDownloadUrlForLayer"

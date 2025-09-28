@@ -49,6 +49,7 @@ jobs:
       with:
         role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
         aws-region: ${{ secrets.AWS_REGION }}
+        audience: sts.amazonaws.com
 
     - name: Terraform Init + Plan + Apply (full infra)
       run: |
