@@ -41,7 +41,10 @@ resource "aws_ecs_cluster" "cluster" {
 # ---------- IAM roles ----------
 data "aws_iam_policy_document" "ecs_task_assume" {
   statement {
-    principals { type = "Service" identifiers = ["ecs-tasks.amazonaws.com"] }
+    principals {
+      type = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
     actions = ["sts:AssumeRole"]
   }
 }
@@ -215,7 +218,10 @@ resource "aws_ecs_task_definition" "mongodb" {
     efs_volume_configuration {
       file_system_id     = aws_efs_file_system.mongo.id
       transit_encryption = "ENABLED"
-      authorization_config { access_point_id = aws_efs_access_point.mongo_ap.id, iam = "DISABLED" }
+      authorization_config {
+        access_point_id = aws_efs_access_point.mongo_ap.id,
+        iam = "DISABLED"
+      }
     }
   }
 
