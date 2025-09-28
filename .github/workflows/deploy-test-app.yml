@@ -27,7 +27,7 @@ jobs:
           echo "ROLE_EXISTS=false" >> $GITHUB_ENV
         fi
 
-    - name: Terraform Init + Plan + Apply (IAM Role only)
+    - name: Terraform Creating IAM Role
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
         terraform init
@@ -57,7 +57,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
         audience: sts.amazonaws.com
 
-    - name: Terraform Init + Plan + Apply (full infra)
+    - name: Terraform Deploy App
       run: |
         cd infra/test/aws
         terraform init

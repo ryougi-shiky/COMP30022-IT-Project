@@ -109,7 +109,12 @@ resource "aws_security_group" "ecs" {
     protocol  = "tcp"
     security_groups = [aws_security_group.ecs.id] # allow self (mongodb)
   }
-  egress { from_port = 0 to_port = 0 protocol = "-1" cidr_blocks = ["0.0.0.0/0"] }
+  egress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 # ---------- ALB ----------
@@ -151,7 +156,10 @@ resource "aws_efs_file_system" "mongo" {
 
 resource "aws_efs_access_point" "mongo_ap" {
   file_system_id = aws_efs_file_system.mongo.id
-  posix_user { uid = 1000 gid = 1000 }
+  posix_user {
+    uid = 1000
+    gid = 1000
+  }
   root_directory { path = "/mongodb" }
 }
 
@@ -188,7 +196,12 @@ locals {
       image     = var.image_mongodb
       essential = true
       portMappings = [{ containerPort = 27017 }]
-      mountPoints = [{ sourceVolume = "mongo-data", containerPath = "/data/db" }]
+      mountPoints = [
+        {
+          sourceVolume = "mongo-data",
+          containerPath = "/data/db"
+        }
+      ]
     }
   ]
 
