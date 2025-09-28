@@ -242,7 +242,7 @@ resource "aws_ecs_task_definition" "mongodb" {
       file_system_id     = aws_efs_file_system.mongo.id
       transit_encryption = "ENABLED"
       authorization_config {
-        access_point_id = aws_efs_access_point.mongo_ap.id,
+        access_point_id = aws_efs_access_point.mongo_ap.id
         iam = "DISABLED"
       }
     }
