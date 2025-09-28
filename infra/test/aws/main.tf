@@ -103,18 +103,22 @@ resource "aws_security_group" "ecs" {
     protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]  # backend public for test; tighten in prod
   }
-  ingress {
-    from_port = 27017
-    to_port   = 27017
-    protocol  = "tcp"
-    security_groups = [aws_security_group.ecs.id] # allow self (mongodb)
-  }
+
   egress {
     from_port = 0
     to_port   = 0
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group_rule" "ecs_mongo_self" {
+  type                     = "ingress"
+  from_port                = 27017
+  to_port                  = 27017
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ecs.id
+  source_security_group_id = aws_security_group.ecs.id
 }
 
 # ---------- ALB ----------
