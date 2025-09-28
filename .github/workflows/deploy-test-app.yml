@@ -22,7 +22,8 @@ jobs:
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
         terraform init
-        terraform apply -target=module.github_actions_oidc_role -auto-approve
+        terraform plan
+        terraform apply -auto-approve
 
   deploy-test-app-to-aws-ecs-fargate:
     runs-on: ubuntu-22.04
@@ -43,6 +44,7 @@ jobs:
       run: |
         cd infra/test/aws
         terraform init
+        terraform plan
         terraform apply -auto-approve
 
     - name: Output ALB
