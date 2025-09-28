@@ -84,6 +84,38 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ecr:GetDownloadUrlForLayer"
         ],
         Resource = "*"
+      },
+      # EC2/VPC (Terraform needs these to lookup networking stuff)
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeRouteTables"
+        ],
+        Resource = "*"
+      },
+      # IAM (sometimes Terraform needs to read role info)
+      {
+        Effect = "Allow",
+        Action = [
+          "iam:GetRole",
+          "iam:PassRole"
+        ],
+        Resource = "*"
+      },
+      # SSM Parameter Store (if you store env secrets there)
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:GetParameters",
+          "ssm:GetParameter",
+          "ssm:GetParametersByPath"
+        ],
+        Resource = "*"
       }
     ]
   })

@@ -95,7 +95,7 @@ resource "aws_security_group" "ecs" {
     from_port = 3000
     to_port   = 3000
     protocol  = "tcp"
-    security_groups = [aws_security_group.alb.id] # only ALB -> nginx
+    security_groups = true # only ALB -> nginx
   }
   ingress {
     from_port = 17000
@@ -107,7 +107,7 @@ resource "aws_security_group" "ecs" {
     from_port = 27017
     to_port   = 27017
     protocol  = "tcp"
-    security_groups = [aws_security_group.ecs.id] # allow self (mongodb)
+    security_groups = true # allow self (mongodb)
   }
   egress {
     from_port = 0
