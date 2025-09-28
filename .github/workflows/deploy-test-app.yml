@@ -6,68 +6,45 @@ on:
       - "deploy-app-staging"
 
 jobs:
+  bootstrap-iam-role:
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials (admin, temporary)
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Terraform Init + Apply (IAM Role only)
+      run: |
+        cd infra/test/aws
+        terraform init
+        terraform apply -target=module.github_actions_oidc_role -auto-approve
+
   deploy-test-app-to-aws-ecs-fargate:
     runs-on: ubuntu-22.04
-
+    needs: bootstrap-iam-role
     permissions:
-      contents: 'read'
-      id-token: 'write'
-
+      contents: read
+      id-token: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Read version from version.txt
-      id: get_version
-      run: ./auto/read-version
-
-    - name: Setup AWS credentials via OIDC
+    - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.AWS_ROLE_TERRAFORM_PLAYGROUND_USER }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Set env for Terraform
-      run: echo "GOOGLE_OAUTH_ACCESS_TOKEN=${{ steps.auth.outputs.access_token }}" >> $GITHUB_ENV
-
-#    - name: Log in to Docker Hub
-#      uses: docker/login-action@v3
-#      with:
-#        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-    - name: Render Docker Compose
-      env:
-        ENV: "test"
-        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        VERSION: ${{ steps.get_version.outputs.VERSION }}
+    - name: Terraform Init + Apply (full infra)
       run: |
-        ./auto/render-docker-compose "deploy/docker-compose.temp.yml" "deploy/docker-compose.${ENV}.yml" "./infra/test/aws/docker-compose.yml"
-
-    - name: Terraform Init
-      run: |
-        ./auto/run-terraform -chdir=test/aws init -backend-config="bucket=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_NAME_TFSTATE }}" -backend-config="prefix=${{ secrets.GCP_STAGING_VM_GCS_BUCKET_PREFIX_TFSTATE }}" -reconfigure
-
-    - name: Terraform Plan
-      env:
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: |
-        cd infra/aws/test
-        ../.. /auto/run-terraform plan \
-          -var="region=${{ secrets.AWS_REGION }}" \
-          -var="docker_hub_username=${{ secrets.DOCKER_HUB_USERNAME }}" \
-          -var="docker_hub_password=${{ secrets.DOCKER_HUB_PASSWORD }}" \
-          -var="image_nginx=${{ secrets.IMAGE_NGINX }}" \
-          -var="image_backend=${{ secrets.IMAGE_BACKEND }}" \
-          -var="image_mongodb=${{ secrets.IMAGE_MONGODB }}" \
-          -out=tfplan
-
-    - name: Terraform Apply
-      env:
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: |
-        cd infra/aws/test
-        ../.. /auto/run-terraform apply -input=false -auto-approve tfplan
+        cd infra/test/aws
+        terraform init
+        terraform apply -auto-approve
 
     - name: Output ALB
       run: |
