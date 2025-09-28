@@ -20,7 +20,7 @@ jobs:
 
     - name: Terraform Init + Apply (IAM Role only)
       run: |
-        cd infra/test/aws
+        cd infra/modules/github-actions-oidc-role/aws/iam-test
         terraform init
         terraform apply -target=module.github_actions_oidc_role -auto-approve
 
