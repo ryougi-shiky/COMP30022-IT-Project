@@ -18,7 +18,17 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    - name: Check if IAM Role exists
+      id: check_iam
+      run: |
+        if aws iam get-role --role-name github-action-deploy-role 2>/dev/null; then
+          echo "ROLE_EXISTS=true" >> $GITHUB_ENV
+        else
+          echo "ROLE_EXISTS=false" >> $GITHUB_ENV
+        fi
+
     - name: Terraform Init + Plan + Apply (IAM Role only)
+      if: env.ROLE_EXISTS == 'false'
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
         terraform init
@@ -52,8 +62,8 @@ jobs:
         cd infra/aws/test
         echo "ALB: $(../.. /auto/run-terraform output -raw alb_dns)"
 
-    - name: Terraform Destroy IAM
-      if: always()
-      run: |
-        cd infra/modules/github-actions-oidc-role/aws/iam-test
-        terraform destroy
+#    - name: Terraform Destroy IAM
+#      if: always()
+#      run: |
+#        cd infra/modules/github-actions-oidc-role/aws/iam-test
+#        terraform destroy
