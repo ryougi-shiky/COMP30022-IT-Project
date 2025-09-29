@@ -82,6 +82,9 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ec2:ReleaseAddress",
           "ec2:CreateTags",
           "ec2:DeleteTags",
+          "ec2:ModifyVpcAttribute",
+          "ec2:ModifySubnetAttribute",
+          "ec2:ModifyInstanceAttribute",
           # read-only
           "ec2:DescribeAvailabilityZones",
           "ec2:DescribeVpcs",
