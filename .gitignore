@@ -3,7 +3,6 @@ node_modules
 Archived_client_1       
 Archived_server_1       
 Archived_server_2       
-test
 frontend/node_modules
 frontend/build
 backend/node_modules
@@ -27,12 +26,9 @@ frontend/cypress/screenshots
 *.tfstate
 *.tfstate.*
 crash.log
-*.tfvars
 override.tf
 override.tf.json
-._*
 .terraform.lock.hcl
-infra/terraform.tfvars.secret
 
 # SA keys / secrets
 sa-key.json
