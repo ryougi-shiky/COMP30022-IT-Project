@@ -32,29 +32,65 @@ resource "aws_iam_role" "github_actions_role" {
 
 }
 
-# ECS + Logs + ALB + (optional ECR) 权限
 resource "aws_iam_policy" "github_actions_ecs_policy" {
   name        = "${var.role_name}Policy"
-  description = "Least privilege policy for ECS deployment from GitHub Actions"
+  description = "Policy for GitHub Actions Terraform deployments (ECS, VPC, IAM, EFS, Secrets, ALB, Logs, ECR)"
 
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
-      # ECS
+      # ECS (cluster, services, tasks, task defs)
       {
         Effect = "Allow",
         Action = [
+          "ecs:CreateCluster",
+          "ecs:DeleteCluster",
+          "ecs:DescribeClusters",
           "ecs:UpdateService",
           "ecs:RegisterTaskDefinition",
           "ecs:DescribeServices",
           "ecs:DescribeTaskDefinition",
-          "ecs:DescribeClusters",
           "ecs:DescribeTasks",
           "ecs:ListTasks",
           "ecs:RunTask"
         ],
         Resource = "*"
       },
+
+      # EC2 / VPC (Terraform needs to create/manage networking resources)
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:CreateVpc",
+          "ec2:DeleteVpc",
+          "ec2:CreateSubnet",
+          "ec2:DeleteSubnet",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:CreateInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:CreateRouteTable",
+          "ec2:AssociateRouteTable",
+          "ec2:CreateRoute",
+          "ec2:DeleteRoute",
+          "ec2:CreateNatGateway",
+          "ec2:AllocateAddress",
+          "ec2:ReleaseAddress",
+          # read-only
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeRouteTables"
+        ],
+        Resource = "*"
+      },
+
       # CloudWatch Logs
       {
         Effect = "Allow",
@@ -65,16 +101,26 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
         ],
         Resource = "*"
       },
+
       # ALB
       {
         Effect = "Allow",
         Action = [
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:DeleteLoadBalancer",
           "elasticloadbalancing:Describe*",
           "elasticloadbalancing:RegisterTargets",
-          "elasticloadbalancing:DeregisterTargets"
+          "elasticloadbalancing:DeregisterTargets",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyListener",
+          "elasticloadbalancing:CreateListener",
+          "elasticloadbalancing:DeleteListener"
         ],
         Resource = "*"
       },
+
       # ECR
       {
         Effect = "Allow",
@@ -85,29 +131,55 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
         ],
         Resource = "*"
       },
-      # EC2/VPC (Terraform needs these to lookup networking stuff)
+
+      # EFS
       {
         Effect = "Allow",
         Action = [
-          "ec2:DescribeAvailabilityZones",
-          "ec2:DescribeVpcs",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeInternetGateways",
-          "ec2:DescribeRouteTables"
+          "elasticfilesystem:CreateFileSystem",
+          "elasticfilesystem:DeleteFileSystem",
+          "elasticfilesystem:DescribeFileSystems",
+          "elasticfilesystem:CreateMountTarget",
+          "elasticfilesystem:DeleteMountTarget",
+          "elasticfilesystem:DescribeMountTargets",
+          "elasticfilesystem:TagResource",
+          "elasticfilesystem:UntagResource"
         ],
         Resource = "*"
       },
-      # IAM (sometimes Terraform needs to read role info)
+
+      # Secrets Manager
       {
         Effect = "Allow",
         Action = [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:DeleteSecret",
+          "secretsmanager:PutSecretValue",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Resource = "*"
+      },
+
+      # IAM (roles for ECS task execution + OIDC provider)
+      {
+        Effect = "Allow",
+        Action = [
+          "iam:CreateRole",
+          "iam:DeleteRole",
           "iam:GetRole",
-          "iam:PassRole"
+          "iam:PassRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:CreatePolicy",
+          "iam:DeletePolicy",
+          "iam:CreateOpenIDConnectProvider",
+          "iam:DeleteOpenIDConnectProvider"
         ],
         Resource = "*"
       },
-      # SSM Parameter Store (if you store env secrets there)
+
+      # SSM Parameter Store (if used for env)
       {
         Effect = "Allow",
         Action = [
