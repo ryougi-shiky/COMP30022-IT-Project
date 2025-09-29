@@ -1,6 +1,6 @@
 variable "region" {
   type    = string
-  default = "ap-southeast-1"
+  default = "ap-northeast-1"
 }
 
 variable "project_prefix" {
@@ -10,7 +10,6 @@ variable "project_prefix" {
 
 variable "image_nginx" {
   type = string
-  # e.g. "youruser/forum-nginx:latest"
 }
 
 variable "image_backend" {

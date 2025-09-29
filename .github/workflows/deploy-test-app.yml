@@ -6,50 +6,13 @@ on:
       - "deploy-app-staging"
 
 jobs:
-  bootstrap-iam-role:
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v5
-
-    - name: Configure AWS credentials (admin, temporary)
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
-    - name: Check if IAM Role exists
-      id: check_iam
-      run: |
-        if aws iam get-role --role-name github-action-deploy-role 2>/dev/null; then
-          echo "ROLE_EXISTS=true" >> $GITHUB_ENV
-        else
-          echo "ROLE_EXISTS=false" >> $GITHUB_ENV
-        fi
-
-    - name: Terraform Creating IAM Role
-      run: |
-        cd infra/modules/github-actions-oidc-role/aws/iam-test
-        terraform init
-        terraform plan
-        terraform apply -auto-approve
-
-    - name: Save Terraform IAM state
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: terraform-iam.tfstate
-        path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
-
-
   deploy-test-app-to-aws-ecs-fargate:
     runs-on: ubuntu-22.04
-    needs: bootstrap-iam-role
     permissions:
       contents: read
       id-token: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v4
 
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v2
@@ -77,48 +40,48 @@ jobs:
         cd infra/aws/test
         echo "ALB: $(../.. /auto/run-terraform output -raw alb_dns)"
 
-  post-deploy-destroy-resources:
-    runs-on: ubuntu-22.04
-    if: always()
-    needs:
-      - deploy-test-app-to-aws-ecs-fargate
-      - bootstrap-iam-role
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-    - uses: actions/checkout@v5
-
-    - name: Configure AWS credentials (admin, temporary)
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
-    - name: Download Terraform IAM state
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-iam.tfstate
-        path: infra/modules/github-actions-oidc-role/aws/iam-test
-
-    - name: Terraform Destroy IAM
-      run: |
-        cd infra/modules/github-actions-oidc-role/aws/iam-test
-        terraform init
-        terraform plan
-        terraform destroy -auto-approve
-
-    - name: Download Terraform Infra state
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-infra.tfstate
-        path: infra/test/aws
-
-    - name: Terraform Destroy Infra
-      run: |
-        cd infra/test/aws
-        terraform init
-        terraform plan
-        terraform destroy -auto-approve
+#  post-deploy-destroy-resources:
+#    runs-on: ubuntu-22.04
+#    if: always()
+#    needs:
+#      - deploy-test-app-to-aws-ecs-fargate
+#      - bootstrap-iam-role
+#    permissions:
+#      contents: read
+#      id-token: write
+#
+#    steps:
+#    - uses: actions/checkout@v4
+#
+#    - name: Configure AWS credentials (admin, temporary)
+#      uses: aws-actions/configure-aws-credentials@v2
+#      with:
+#        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        aws-region: ${{ secrets.AWS_REGION }}
+#
+#    - name: Download Terraform IAM state
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: terraform-iam.tfstate
+#        path: infra/modules/github-actions-oidc-role/aws/iam-test
+#
+#    - name: Terraform Destroy IAM
+#      run: |
+#        cd infra/modules/github-actions-oidc-role/aws/iam-test
+#        terraform init
+#        terraform plan
+#        terraform destroy -auto-approve
+#
+#    - name: Download Terraform Infra state
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: terraform-infra.tfstate
+#        path: infra/test/aws
+#
+#    - name: Terraform Destroy Infra
+#      run: |
+#        cd infra/test/aws
+#        terraform init
+#        terraform plan
+#        terraform destroy -auto-approve
