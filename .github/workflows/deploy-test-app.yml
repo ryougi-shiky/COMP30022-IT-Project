@@ -106,7 +106,6 @@ jobs:
     - name: Terraform Destroy IAM
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
-        mv terraform-iam.tfstate terraform.tfstate
         terraform init
         terraform plan
         terraform destroy -auto-approve
@@ -120,7 +119,6 @@ jobs:
     - name: Terraform Destroy Infra
       run: |
         cd infra/test/aws
-        mv terraform-infra.tfstate terraform.tfstate
         terraform init
         terraform plan
         terraform destroy -auto-approve
