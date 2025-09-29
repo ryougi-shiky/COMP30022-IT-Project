@@ -80,6 +80,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ec2:CreateNatGateway",
           "ec2:AllocateAddress",
           "ec2:ReleaseAddress",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
           # read-only
           "ec2:DescribeAvailabilityZones",
           "ec2:DescribeVpcs",
@@ -143,7 +145,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "elasticfilesystem:DeleteMountTarget",
           "elasticfilesystem:DescribeMountTargets",
           "elasticfilesystem:TagResource",
-          "elasticfilesystem:UntagResource"
+          "elasticfilesystem:UntagResource",
+          "elasticfilesystem:DescribeLifecycleConfiguration"
         ],
         Resource = "*"
       },
@@ -156,7 +159,9 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "secretsmanager:DeleteSecret",
           "secretsmanager:PutSecretValue",
           "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret"
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetResourcePolicy",
+          "secretsmanager:ListSecrets"
         ],
         Resource = "*"
       },
@@ -174,7 +179,12 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "iam:CreatePolicy",
           "iam:DeletePolicy",
           "iam:CreateOpenIDConnectProvider",
-          "iam:DeleteOpenIDConnectProvider"
+          "iam:DeleteOpenIDConnectProvider",
+          "iam:ListRolePolicies",
+          "iam:GetPolicy",
+          "iam:GetRolePolicy",
+          "iam:GetRole",
+          "iam:ListAttachedRolePolicies"
         ],
         Resource = "*"
       },
