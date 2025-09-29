@@ -101,24 +101,26 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-iam.tfstate
-        path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
+        path: infra/modules/github-actions-oidc-role/aws/iam-test
 
     - name: Terraform Destroy IAM
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
+        mv terraform-iam.tfstate terraform.tfstate
         terraform init
         terraform plan
-        terraform destroy -state="terraform-iam.tfstate" -auto-approve
+        terraform destroy -auto-approve
 
     - name: Download Terraform Infra state
       uses: actions/download-artifact@v4
       with:
         name: terraform-infra.tfstate
-        path: infra/test/aws/terraform.tfstate
+        path: infra/test/aws
 
     - name: Terraform Destroy Infra
       run: |
         cd infra/test/aws
+        mv terraform-infra.tfstate terraform.tfstate
         terraform init
         terraform plan
-        terraform destroy -state="terraform-infra.tfstate" -auto-approve
+        terraform destroy -auto-approve

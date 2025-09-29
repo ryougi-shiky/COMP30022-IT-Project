@@ -1,3 +1,3 @@
-image_nginx = "forum-nginx"
-image_backend   = "forum-backend"
-image_mongodb    = "forum-mongodb"
+image_nginx = "ryougishiky/forum-nginx"
+image_backend   = "ryougishiky/forum-backend"
+image_mongodb    = "ryougishiky/forum-mongodb"
