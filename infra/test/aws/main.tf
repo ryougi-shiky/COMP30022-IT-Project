@@ -58,18 +58,6 @@ resource "aws_iam_role_policy_attachment" "exec_attach" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# ---------- SecretsManager: DockerHub credentials (for private DockerHub) ----------
-resource "aws_secretsmanager_secret" "dockerhub" {
-  name = "${var.project_prefix}-dockerhub"
-}
-resource "aws_secretsmanager_secret_version" "dockerhub_version" {
-  secret_id = aws_secretsmanager_secret.dockerhub.id
-  secret_string = jsonencode({
-    username = var.docker_hub_username
-    password = var.docker_hub_password
-  })
-}
-
 # ---------- Security Groups ----------
 resource "aws_security_group" "alb" {
   name   = "${var.project_prefix}-alb-sg"
@@ -331,6 +319,3 @@ resource "aws_ecs_service" "nginx" {
 
   depends_on = [aws_lb_listener.http]
 }
-
-# If DockerHub is private: attach repository credentials to services (ECS supports repository_credentials only at task_definition.container_definitions container level in newer providers).
-# Simpler: use public images or push to ECR.
