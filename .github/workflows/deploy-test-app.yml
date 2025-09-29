@@ -101,7 +101,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-iam.tfstate
-        path: infra/modules/github-actions-oidc-role/aws/iam-test
+        path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
 
     - name: Terraform Destroy IAM
       run: |
@@ -114,7 +114,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: terraform-infra.tfstate
-        path: infra/test/aws
+        path: infra/test/aws/terraform.tfstate
 
     - name: Terraform Destroy Infra
       run: |
