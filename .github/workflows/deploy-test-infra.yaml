@@ -101,6 +101,8 @@ jobs:
     - name: Terraform Destroy IAM
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
+        terraform init
+        terraform plan
         terraform destroy -auto-approve
 
     - name: Download Terraform Infra state
@@ -111,5 +113,7 @@ jobs:
 
     - name: Terraform Destroy Infra
       run: |
-        cd infra/test/aws 
+        cd infra/test/aws
+        terraform init
+        terraform plan
         terraform destroy -auto-approve
