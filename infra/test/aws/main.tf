@@ -11,13 +11,15 @@ provider "aws" {
 
 # ---------- VPC (use module for brevity) ----------
 module "vpc" {
-  source             = "terraform-aws-modules/vpc/aws"
-  version            = ">= 3.0"
-  name               = "${var.project_prefix}-vpc"
-  cidr               = "10.0.0.0/16"
+  source                        = "terraform-aws-modules/vpc/aws"
+  version                       = ">= 3.0"
+  name                          = "${var.project_prefix}-vpc"
+  cidr                          = "10.0.0.0/16"
   azs = slice(data.aws_availability_zones.available.names, 0, 2)
-  public_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
-  enable_nat_gateway = false
+  public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
+  enable_nat_gateway            = false
+  enable_default_security_group = true
+  enable_default_network_acl    = true
   tags = { Environment = "test" }
 }
 
@@ -36,7 +38,7 @@ resource "aws_ecs_cluster" "cluster" {
 data "aws_iam_policy_document" "ecs_task_assume" {
   statement {
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = ["ecs-tasks.amazonaws.com"]
     }
     actions = ["sts:AssumeRole"]
@@ -58,15 +60,15 @@ resource "aws_security_group" "alb" {
   name   = "${var.project_prefix}-alb-sg"
   vpc_id = module.vpc.vpc_id
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
@@ -75,9 +77,9 @@ resource "aws_security_group" "ecs" {
   name   = "${var.project_prefix}-ecs-sg"
   vpc_id = module.vpc.vpc_id
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
