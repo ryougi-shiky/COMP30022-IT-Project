@@ -67,6 +67,7 @@ jobs:
           terraform apply -auto-approve
 
       - name: Save Terraform State
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: terraform-infra.tfstate
