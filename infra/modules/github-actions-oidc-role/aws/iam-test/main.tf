@@ -1,7 +1,7 @@
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] # 固定的 GitHub OIDC thumbprint
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
 }
 
 data "aws_caller_identity" "current" {}
@@ -90,8 +90,10 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ec2:DescribeVpcs",
           "ec2:DescribeSubnets",
           "ec2:DescribeSecurityGroups",
+          "ec2:DescribeSecurityGroupRules",
           "ec2:DescribeInternetGateways",
-          "ec2:DescribeRouteTables"
+          "ec2:DescribeRouteTables",
+          "ec2:DescribeVpcAttribute"
         ],
         Resource = "*"
       },
@@ -186,6 +188,7 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "iam:ListRolePolicies",
           "iam:GetPolicy",
           "iam:GetRolePolicy",
+          "iam:GetPolicyVersion",
           "iam:GetRole",
           "iam:ListAttachedRolePolicies"
         ],

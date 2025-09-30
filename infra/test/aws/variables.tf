@@ -1,6 +1,6 @@
 variable "region" {
   type    = string
-  default = "ap-southeast-1"
+  default = "ap-northeast-1"
 }
 
 variable "project_prefix" {
@@ -8,9 +8,13 @@ variable "project_prefix" {
   default = "comp30022"
 }
 
+variable "aws_account_id" {
+  description = "AWS Account ID where the role will be created"
+  type        = string
+}
+
 variable "image_nginx" {
   type = string
-  # e.g. "youruser/forum-nginx:latest"
 }
 
 variable "image_backend" {
