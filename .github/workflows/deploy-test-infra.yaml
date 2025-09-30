@@ -12,6 +12,10 @@ on:
       - "deploy-test-app"
 #    branches-ignore: ["*"]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy-infra:
     runs-on: ubuntu-22.04
