@@ -53,7 +53,7 @@ jobs:
           name: terraform-iam.tfstate
           path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
 
-      - name: Configure AWS Credentials
+      - name: Configure IAM Deploy Role Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::219396432881:role/github-action-deploy-role

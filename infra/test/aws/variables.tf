@@ -8,6 +8,11 @@ variable "project_prefix" {
   default = "comp30022"
 }
 
+variable "aws_account_id" {
+  description = "AWS Account ID where the role will be created"
+  type        = string
+}
+
 variable "image_nginx" {
   type = string
 }
