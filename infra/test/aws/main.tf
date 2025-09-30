@@ -9,7 +9,14 @@ provider "aws" {
   region = var.region
 }
 
+data "aws_availability_zones" "available" {}
+
+data "aws_iam_policy" "github_actions_ecs_policy" {
+  arn = "arn:aws:iam::${var.aws_account_id}:policy/github-action-deploy-rolePolicy"
+}
+
 # ---------- VPC (use module for brevity) ----------
+
 module "vpc" {
   source                        = "terraform-aws-modules/vpc/aws"
   version                       = ">= 3.0"
@@ -18,15 +25,7 @@ module "vpc" {
   azs = slice(data.aws_availability_zones.available.names, 0, 2)
   public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
   enable_nat_gateway            = false
-  enable_default_security_group = true
-  enable_default_network_acl    = true
   tags = { Environment = "test" }
-}
-
-data "aws_availability_zones" "available" {}
-
-data "aws_iam_policy" "github_actions_ecs_policy" {
-  arn = "arn:aws:iam::${var.aws_account_id}:policy/github-action-deploy-rolePolicy"
 }
 
 # ---------- ECS Cluster ----------
@@ -46,7 +45,7 @@ data "aws_iam_policy_document" "ecs_task_assume" {
 }
 
 resource "aws_iam_role" "ecs_task_execution" {
-  name               = "${var.project_prefix}-ecs-exec"
+  name               = "${var.project_prefix}-ecs-task-execution-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume.json
 }
 

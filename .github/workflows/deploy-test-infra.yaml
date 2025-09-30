@@ -53,11 +53,11 @@ jobs:
           name: terraform-iam.tfstate
           path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
 
-      - name: Configure IAM Deploy Role Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::219396432881:role/github-action-deploy-role
-          aws-region: ${{ secrets.AWS_REGION }}
+#      - name: Configure IAM Deploy Role Credentials
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          role-to-assume: arn:aws:iam::219396432881:role/github-action-deploy-role
+#          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Terraform Creating Infra
         run: |
@@ -101,8 +101,6 @@ jobs:
     - name: Terraform Destroy IAM
       run: |
         cd infra/modules/github-actions-oidc-role/aws/iam-test
-        terraform init
-        terraform plan
         terraform destroy -auto-approve
 
     - name: Download Terraform Infra state
@@ -113,7 +111,5 @@ jobs:
 
     - name: Terraform Destroy Infra
       run: |
-        cd infra/test/aws
-        terraform init
-        terraform plan
+        cd infra/test/aws 
         terraform destroy -auto-approve
