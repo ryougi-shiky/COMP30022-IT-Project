@@ -11,10 +11,6 @@ provider "aws" {
 
 data "aws_availability_zones" "available" {}
 
-data "aws_iam_policy" "github_actions_ecs_policy" {
-  arn = "arn:aws:iam::${var.aws_account_id}:policy/github-action-deploy-rolePolicy"
-}
-
 # ---------- VPC (use module for brevity) ----------
 
 module "vpc" {
