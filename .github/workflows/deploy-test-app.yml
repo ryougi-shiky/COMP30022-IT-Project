@@ -3,7 +3,7 @@ name: Deploy Test Environment to AWS ECS (Fargate Spot)
 on:
   push:
     branches:
-      - "deploy-app-staging"
+      - "deploy-test-app"
 
 jobs:
   deploy-test-app-to-aws-ecs-fargate:

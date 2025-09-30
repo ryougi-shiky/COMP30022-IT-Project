@@ -9,7 +9,7 @@ on:
         default: "NO"
   push:
     branches:
-      - "deploy-app-staging"
+      - "deploy-test-app"
 #    branches-ignore: ["*"]
 
 jobs:
