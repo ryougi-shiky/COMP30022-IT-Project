@@ -21,20 +21,10 @@ module "vpc" {
   tags = { Environment = "test" }
 }
 
-module "github_actions_oidc_role" {
-  source = "../../modules/github-actions-oidc-role/aws/iam-test"
-
-  aws_account_id = "219396432881"
-  github_owner   = "ryougi-shiky"
-  github_repo    = "COMP30022-IT-Project"
-  github_branch  = "deploy-test-app"
-}
-
-
 data "aws_availability_zones" "available" {}
 
 data "aws_iam_policy" "github_actions_ecs_policy" {
-  arn = "arn:aws:iam::${var.aws_account_id}:policy/GitHubActionsTerraformRolePolicy"
+  arn = "arn:aws:iam::${var.aws_account_id}:policy/github-action-deploy-rolePolicy"
 }
 
 # ---------- ECS Cluster ----------
