@@ -49,6 +49,12 @@ jobs:
           name: terraform-iam.tfstate
           path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::219396432881:role/github-actions-oidc-role
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Terraform Creating Infra
         run: |
           cd infra/test/aws
