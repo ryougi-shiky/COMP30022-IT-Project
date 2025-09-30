@@ -98,7 +98,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Download Terraform IAM state
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: terraform-iam.tfstate
         path: infra/modules/github-actions-oidc-role/aws/iam-test
@@ -111,7 +111,7 @@ jobs:
         terraform destroy -auto-approve
 
     - name: Download Terraform Infra state
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: terraform-infra.tfstate
         path: infra/test/aws
