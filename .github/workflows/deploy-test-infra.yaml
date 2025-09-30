@@ -1,4 +1,4 @@
-name: Deploy Infra
+name: Deploy Test Environment Infra
 
 on:
   workflow_dispatch:
@@ -49,7 +49,7 @@ jobs:
           name: terraform-iam.tfstate
           path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
 
-      - name: Terraform Init & Apply Infra
+      - name: Terraform Creating Infra
         run: |
           cd infra/test/aws
           terraform init

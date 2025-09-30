@@ -1,9 +1,10 @@
-name: Deploy Test Environment to AWS ECS (Fargate Spot)
+name: Deploy Test App to AWS ECS (Fargate Spot)
 
 on:
   push:
-    branches:
-      - "deploy-test-app"
+#    branches:
+#      - "deploy-test-app"
+    branches-ignore: ["*"]
 
 jobs:
   deploy-test-app-to-aws-ecs-fargate:
