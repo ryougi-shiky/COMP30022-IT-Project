@@ -186,6 +186,7 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "iam:ListRolePolicies",
           "iam:GetPolicy",
           "iam:GetRolePolicy",
+          "iam:GetPolicyVersion",
           "iam:GetRole",
           "iam:ListAttachedRolePolicies"
         ],
