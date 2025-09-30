@@ -61,3 +61,48 @@ jobs:
         with:
           name: terraform-infra.tfstate
           path: infra/test/aws/terraform.tfstate
+
+  post-deploy-destroy-resources:
+    runs-on: ubuntu-22.04
+    if: always()
+    needs:
+      - deploy-infra
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure AWS credentials (admin, temporary)
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Download Terraform IAM state
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-iam.tfstate
+        path: infra/modules/github-actions-oidc-role/aws/iam-test
+
+    - name: Terraform Destroy IAM
+      run: |
+        cd infra/modules/github-actions-oidc-role/aws/iam-test
+        terraform init
+        terraform plan
+        terraform destroy -auto-approve
+
+    - name: Download Terraform Infra state
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-infra.tfstate
+        path: infra/test/aws
+
+    - name: Terraform Destroy Infra
+      run: |
+        cd infra/test/aws
+        terraform init
+        terraform plan
+        terraform destroy -auto-approve
