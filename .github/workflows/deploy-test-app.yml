@@ -1,6 +1,12 @@
 name: Deploy Test App to AWS ECS (Fargate Spot)
 
 on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type YES to confirm deployment"
+        required: true
+        default: "NO"
   push:
 #    branches:
 #      - "deploy-test-app"
