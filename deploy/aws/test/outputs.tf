@@ -9,7 +9,3 @@ output "ecs_service_name" {
 output "ecs_service_arn" {
   value = aws_ecs_service.app.arn
 }
-
-output "alb_target_group_arn" {
-  value = aws_lb_target_group.nginx_tg.arn
-}
