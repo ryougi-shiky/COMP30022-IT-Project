@@ -1,4 +1,4 @@
-name: Deploy Test App to AWS ECS (Fargate Spot)
+name: Deploy App (Test Environment) to AWS ECS (Fargate Spot)
 
 on:
   workflow_dispatch:
@@ -8,14 +8,13 @@ on:
         required: true
         default: "NO"
   push:
-#    branches:
-#      - "deploy-test-app"
-    branches-ignore: ["*"]
+    branches:
+      - "deploy-test-app"
 
 jobs:
   deploy-test-app-to-aws-ecs-fargate:
     runs-on: ubuntu-22.04
-    if: startsWith(github.ref, 'refs/heads/release/')
+    # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     permissions:
       contents: read
       id-token: write
@@ -29,9 +28,9 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
         audience: sts.amazonaws.com
 
-    - name: Terraform Deploy App
+    - name: Terraform Deploy App (Test Environment)
       run: |
-        cd infra/test/aws
+        cd deploy/aws/test
         terraform init
         terraform plan
         terraform apply -auto-approve
@@ -45,8 +44,8 @@ jobs:
 
     - name: Output ALB
       run: |
-        cd infra/aws/test
-        echo "ALB: $(../.. /auto/run-terraform output -raw alb_dns)"
+        cd deploy/aws/test
+        terraform output -raw alb_dns_name || echo "No ALB output found"
 
 #  post-deploy-destroy-resources:
 #    runs-on: ubuntu-22.04
