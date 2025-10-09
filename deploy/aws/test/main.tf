@@ -6,7 +6,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = var.region
 }
 
 locals {
@@ -14,7 +14,7 @@ locals {
   containers = [
     {
       name  = "mongodb"
-      image = "ryougishiky/forum-mongodb:latest"
+      image = "${var.image_mongodb}"
       essential = true
       portMappings = [
         { containerPort = 27017, protocol = "tcp" }
@@ -28,7 +28,7 @@ locals {
 
     {
       name  = "backend"
-      image = "ryougishiky/forum-backend:latest"
+      image = "${var.image_backend}"
       essential = true
       portMappings = [
         { containerPort = 17000, protocol = "tcp" }
@@ -45,7 +45,7 @@ locals {
 
     {
       name  = "nginx"
-      image = "ryougishiky/forum-nginx:latest"
+      image = "${var.image_nginx}"
       essential = true
       portMappings = [
         { containerPort = 80, protocol = "tcp" } # ALB will target this port
@@ -80,8 +80,6 @@ resource "aws_ecs_service" "app" {
   cluster         = var.cluster_id != "" ? var.cluster_id : var.cluster_arn
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
-
-  launch_type = "FARGATE"
 
   network_configuration {
     subnets          = var.subnet_ids
