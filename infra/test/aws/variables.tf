@@ -5,7 +5,7 @@ variable "region" {
 
 variable "project_prefix" {
   type    = string
-  default = "comp30022"
+  default = "comp30022-test"
 }
 
 variable "aws_account_id" {
