@@ -7,14 +7,14 @@ on:
         description: "Type YES to confirm deployment"
         required: true
         default: "NO"
-  push:
-    branches:
-      - "deploy-test-app"
+#  push:
+#    branches:
+#      - "deploy-test-app"
 
 jobs:
   deploy-test-app-to-aws-ecs-fargate:
     runs-on: ubuntu-22.04
-    # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
+    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     permissions:
       contents: read
       id-token: write
