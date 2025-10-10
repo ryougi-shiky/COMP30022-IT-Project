@@ -60,6 +60,6 @@
   },
   "devDependencies": {
     "@testing-library/cypress": "^10.0.3",
-    "cypress": "^15.0.0"
+    "cypress": "^14.4.1"
   }
 }
