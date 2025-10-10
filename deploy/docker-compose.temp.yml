@@ -18,6 +18,9 @@ services:
       - backend
     networks:
       - app-network
+    environment:
+      - BACKEND_HOST=${BACKEND_HOST:-backend}
+      - BACKEND_PORT=${BACKEND_PORT:-17000}
 
 networks:
   app-network:

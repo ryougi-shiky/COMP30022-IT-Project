@@ -10,7 +10,5 @@ rm -rf build
 docker rm -f frontend-build
 docker run --rm --name frontend-build --network=host \
     -e "REACT_APP_BACKEND_URL=/api" \
-    -e BACKEND_HOST=${BACKEND_HOST:-backend} \
-    -e BACKEND_PORT=${BACKEND_PORT:-17000} \
     -v "$(pwd)/build:/app/build" \
     frontend-dev npm run build
