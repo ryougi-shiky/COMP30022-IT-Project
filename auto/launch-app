@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "-------------------- 🫡 Launching AniAni --------------------"
+
 if [ "${ENV}" != "test" ]; then
   auto/build-frontend-dev
   auto/build-frontend-artifacts
