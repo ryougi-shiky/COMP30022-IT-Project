@@ -9,48 +9,65 @@ provider "aws" {
   region = var.region
 }
 
+# Log group for the ECS task
+resource "aws_cloudwatch_log_group" "app" {
+  name = "/ecs/${var.project_prefix}-app"
+
+  tags = {
+    Name = "${var.project_prefix}-app-logs"
+  }
+}
+
 locals {
+  # Common log configuration for all containers
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      "awslogs-group"         = aws_cloudwatch_log_group.app.name
+      "awslogs-region"        = var.region
+      "awslogs-stream-prefix" = "ecs"
+    }
+  }
+
   # Container definitions assembled as HCL objects and then jsonencoded
   containers = [
     {
-      name  = "mongodb"
-      image = "${var.image_mongodb}"
-      essential = true
-      portMappings = [
-        { containerPort = 27017, protocol = "tcp" }
-      ]
-      # mount the named "mongo-data" volume to /data/db
-      mountPoints = [
-        { sourceVolume = "mongo-data", containerPath = "/data/db" }
-      ]
-      environment = []
+      name             = "mongodb"
+      image            = var.image_mongodb
+      essential        = true
+      portMappings     = [{ containerPort = 27017, protocol = "tcp" }]
+      mountPoints      = [{ sourceVolume = "mongo-data", containerPath = "/data/db" }]
+      environment      = []
+      logConfiguration = local.log_configuration
     },
 
     {
-      name  = "backend"
-      image = "${var.image_backend}"
-      essential = true
-      portMappings = [
-        { containerPort = 17000, protocol = "tcp" }
-      ]
+      name             = "backend"
+      image            = var.image_backend
+      essential        = true
+      portMappings     = [{ containerPort = 17000, protocol = "tcp" }]
       environment = [
         { name = "NODE_ENV", value = "development" },
         { name = "PORT", value = "17000" },
-        # backend can connect to mongodb via internal container hostname (mongodb) since same task
-        { name = "MONGODB_URI", value = "mongodb://localhost:27017" }, # use localhost because containers in same task share network namespace
+        { name = "MONGODB_URI", value = "mongodb://localhost:27017" },
         { name = "MONGODB_NAME", value = "ani" },
-        { name = "CORS_WHITELIST", value = "http://localhost:3000" }
+        { name = "CORS_WHITELIST", value = "http://localhost:3000" } # This might need to be the ALB DNS name later
       ]
+      logConfiguration = local.log_configuration
     },
 
     {
-      name  = "nginx"
-      image = "${var.image_nginx}"
-      essential = true
-      portMappings = [
-        { containerPort = 80, protocol = "tcp" } # ALB will target this port
+      name             = "nginx"
+      image            = var.image_nginx
+      essential        = true
+      portMappings     = [{ containerPort = 80, protocol = "tcp" }]
+      environment = [
+        # Since containers in the same task share a network namespace (awsvpc),
+        # nginx can proxy to the backend via localhost.
+        { name = "BACKEND_HOST", value = "localhost" },
+        { name = "BACKEND_PORT", value = "17000" }
       ]
-      environment = []
+      logConfiguration = local.log_configuration
     }
   ]
 }
@@ -81,6 +98,9 @@ resource "aws_ecs_service" "app" {
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
 
+  # Ensure the log group is created before the service tries to use it
+  depends_on = [aws_cloudwatch_log_group.app]
+
   network_configuration {
     subnets          = var.subnet_ids
     security_groups  = var.security_group_ids
@@ -101,6 +121,4 @@ resource "aws_ecs_service" "app" {
 
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
-
-  depends_on = []
 }
