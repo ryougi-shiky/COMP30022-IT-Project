@@ -4,6 +4,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "-------------------- 🫡 Launching AniAni --------------------"
+
+export BACKEND_HOST=${BACKEND_HOST:-backend}
+export BACKEND_PORT=${BACKEND_PORT:-17000}
+
 if [ "${ENV}" != "test" ]; then
   auto/build-frontend-dev
   auto/build-frontend-artifacts
