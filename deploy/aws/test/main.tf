@@ -51,7 +51,8 @@ locals {
         { name = "PORT", value = "17000" },
         { name = "MONGODB_URI", value = "mongodb://localhost:27017" },
         { name = "MONGODB_NAME", value = "ani" },
-        { name = "CORS_WHITELIST", value = "http://localhost:3000" } # This might need to be the ALB DNS name later
+        # WARNING: Allowing all origins is insecure. For production, replace "*" with your specific ALB DNS name.
+        { name = "CORS_WHITELIST", value = "*" }
       ]
       logConfiguration = local.log_configuration
     },
@@ -62,12 +63,18 @@ locals {
       essential        = true
       portMappings     = [{ containerPort = 80, protocol = "tcp" }]
       environment = [
-        # Since containers in the same task share a network namespace (awsvpc),
-        # nginx can proxy to the backend via localhost.
         { name = "BACKEND_HOST", value = "localhost" },
         { name = "BACKEND_PORT", value = "17000" }
       ]
       logConfiguration = local.log_configuration
+      # Health check for the nginx container itself is still useful
+      healthCheck = {
+        command   = ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+        interval  = 30
+        timeout   = 5
+        retries   = 3
+        startPeriod = 30
+      }
     }
   ]
 }
@@ -82,10 +89,8 @@ resource "aws_ecs_task_definition" "app" {
   execution_role_arn       = var.execution_role_arn
   task_role_arn            = length(var.task_role_arn) > 0 ? var.task_role_arn : null
 
-  # ephemeral volume for mongo data (not persistent across task replacement)
   volume {
     name = "mongo-data"
-    # No efs config -> ephemeral volume for Fargate
   }
 
   container_definitions = jsonencode(local.containers)
@@ -98,7 +103,6 @@ resource "aws_ecs_service" "app" {
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
 
-  # Ensure the log group is created before the service tries to use it
   depends_on = [aws_cloudwatch_log_group.app]
 
   network_configuration {
@@ -112,7 +116,6 @@ resource "aws_ecs_service" "app" {
     weight            = 1
   }
 
-  # point the ALB target group to the nginx container port (80)
   load_balancer {
     target_group_arn = var.alb_target_group_arn
     container_name   = "nginx"
