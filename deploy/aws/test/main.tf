@@ -103,6 +103,8 @@ resource "aws_ecs_service" "app" {
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
 
+  # Give the container time to start up before ALB health check start failing the task.
+  health_check_grace_period_seconds = 120
   depends_on = [aws_cloudwatch_log_group.app]
 
   network_configuration {
