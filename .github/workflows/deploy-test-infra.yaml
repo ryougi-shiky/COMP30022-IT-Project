@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   deploy-infra:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     steps:
       - uses: actions/checkout@v4
