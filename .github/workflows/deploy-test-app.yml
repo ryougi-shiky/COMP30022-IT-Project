@@ -19,7 +19,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v2
