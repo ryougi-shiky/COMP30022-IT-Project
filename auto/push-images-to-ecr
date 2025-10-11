@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "-------------------- 🙌 Push Docker Images to ECR --------------------"
+echo "-------------------- 🔐 Login AWS Public ECR --------------------"
+aws ecr-public get-login-password --region us-east-1 | \
+docker login --username AWS --password-stdin public.ecr.aws
+
+VERSION=0.2.4
+DOCKER_USER=localuser
+
+echo "-------------------- ⚒️ Building Images --------------------"
+
+auto/build $DOCKER_USER ${VERSION}
+
+echo "-------------------- 🏷️ Tagging Images --------------------"
+
+docker tag $DOCKER_USER/forum-backend:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/backend:${VERSION}
+docker tag $DOCKER_USER/forum-mongodb:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:${VERSION}
+docker tag $DOCKER_USER/forum-nginx:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:${VERSION}
+
+echo "-------------------- 🚀 Pushing Images to ECR --------------------"
+docker push public.ecr.aws/g0n3r5g7/comp30022-forum/backend:${VERSION}
+docker push public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:${VERSION}
+docker push public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:${VERSION}
