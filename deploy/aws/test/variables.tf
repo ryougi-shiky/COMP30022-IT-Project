@@ -42,12 +42,12 @@ variable "cluster_id" {
 }
 
 variable "subnet_ids" {
-  type = list(string)
+  type        = list(string)
   description = "List of subnet ids for tasks (private/public subnets) - provided by infra"
 }
 
 variable "security_group_ids" {
-  type = list(string)
+  type        = list(string)
   description = "Security group ids to attach to tasks (should allow needed egress and ALB ingress). Provided by infra."
 }
 

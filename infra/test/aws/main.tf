@@ -26,7 +26,7 @@ module "vpc" {
 
 # ---------- ECS Cluster ----------
 resource "aws_ecs_cluster" "cluster" {
-  name = "${var.project_prefix}-test-cluster"
+  name = "${var.project_prefix}-cluster"
 }
 
 # ---------- IAM Roles ----------
@@ -71,6 +71,12 @@ resource "aws_security_group" "alb" {
 resource "aws_security_group" "ecs" {
   name   = "${var.project_prefix}-ecs-sg"
   vpc_id = module.vpc.vpc_id
+  ingress {
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
   egress {
     from_port = 0
     to_port   = 0
@@ -94,7 +100,7 @@ resource "aws_lb_target_group" "nginx_tg" {
   vpc_id      = module.vpc.vpc_id
   target_type = "ip"
   health_check {
-    path = "/"
+    path = "/healthcheck"
   }
 }
 

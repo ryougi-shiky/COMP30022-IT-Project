@@ -16,8 +16,10 @@ VERSION=$2
 auto/build-frontend-dev
 auto/build-frontend-artifacts
 
-docker build -f ./backend/Dockerfile.dev -t $DOCKER_USER/forum-backend:$VERSION ./backend &
-docker build -f ./nginx/Dockerfile.dev -t $DOCKER_USER/forum-nginx:$VERSION . &
-docker build -f ./db/mongo/Dockerfile.dev -t $DOCKER_USER/forum-mongodb:$VERSION ./db/mongo &
+PLATFORMS="linux/amd64,linux/arm64"
+
+docker build --platform $PLATFORMS -f ./backend/Dockerfile.dev -t $DOCKER_USER/forum-backend:$VERSION ./backend &
+docker build --platform $PLATFORMS -f ./nginx/Dockerfile.dev -t $DOCKER_USER/forum-nginx:$VERSION . &
+docker build --platform $PLATFORMS -f ./db/mongo/Dockerfile.dev -t $DOCKER_USER/forum-mongodb:$VERSION ./db/mongo &
 
 wait
