@@ -30,7 +30,7 @@ jobs:
 
     - name: Terraform Deploy App (Test Environment)
       run: |
-        cd deploy/aws/test
+        cd deploy/test/aws
         terraform init
         terraform plan
         terraform apply -auto-approve
@@ -44,7 +44,7 @@ jobs:
 
     - name: Output ALB
       run: |
-        cd deploy/aws/test
+        cd deploy/test/aws
         terraform output -raw alb_dns_name || echo "No ALB output found"
 
 #  post-deploy-destroy-resources:
