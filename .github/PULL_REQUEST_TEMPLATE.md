@@ -1,5 +1,15 @@
 
-#### What type of PR is this?
+### What this PR does / why we need it:
+
+### Which issue(s) this PR fixes:
+<!--
+*Automatically closes linked issue when PR is merged.
+Usage: `Fixes #<issue number>`, or `Fixes (paste link of issue)`.
+_If PR is about `failing-tests or flakes`, please post the related issues/tests in a comment and do not use `Fixes`_*
+-->
+Fixes #
+
+### What type of PR is this?
 
 - [ ] /kind bugfix
 - [ ] /kind cleanup
@@ -15,17 +25,7 @@
 - [ ] /kind rollback
 - [ ] /kind release
 
-#### What this PR does / why we need it:
-
-#### Which issue(s) this PR fixes:
-<!--
-*Automatically closes linked issue when PR is merged.
-Usage: `Fixes #<issue number>`, or `Fixes (paste link of issue)`.
-_If PR is about `failing-tests or flakes`, please post the related issues/tests in a comment and do not use `Fixes`_*
--->
-Fixes #
-
-#### How is this PR tested:
+### How is this PR tested:
 - [ ] unit test
 - [ ] e2e test
 - [ ] other (please specify)
