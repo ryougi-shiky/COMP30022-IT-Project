@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "-------------------- 🧪 Running E2E Tests --------------------"
+
+APP_URL=$1
+
+echo "APP_URL=${APP_URL}"
+
+cd frontend
+docker rm -f cypress-e2e || true
+docker run --rm --name cypress-e2e --network=host \
+    -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
+    -e APP_BASE_URL=${APP_URL} \
+    frontend-dev npx cypress run
