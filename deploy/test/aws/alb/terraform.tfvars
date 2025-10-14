@@ -1,4 +1,4 @@
-vpc_id = "vpc-05d6b8de82a3c8c86"
-public_subnets = ["subnet-0d9a01f6d6abec230", "subnet-07c8a9f2b74b95f45"]
+vpc_id = "vpc-05cde924fb6542906"
+public_subnets = ["subnet-06a11980a16b09796", "subnet-061425f15fb313454"]
 
-ecs_security_group_id = "sg-08f56e73464b55e5d"
+ecs_security_group_id = "sg-0002763e4d12c6eab"
