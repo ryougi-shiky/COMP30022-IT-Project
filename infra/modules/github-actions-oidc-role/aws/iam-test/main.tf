@@ -104,7 +104,8 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:TagResource"
         ],
         Resource = "*"
       },
