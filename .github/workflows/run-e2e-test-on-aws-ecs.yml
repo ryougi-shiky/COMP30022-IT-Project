@@ -167,7 +167,7 @@ jobs:
   post-deploy-destroy-resources:
     runs-on: ubuntu-22.04
     if: always() # This job runs regardless of the success of previous jobs
-    needs: deploy-app-and-test
+    needs: run-e2e-test
     steps:
     - uses: actions/checkout@v4
 
