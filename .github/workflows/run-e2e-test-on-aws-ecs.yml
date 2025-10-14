@@ -149,6 +149,13 @@ jobs:
           auto/run-e2e-tests-on-deployed-app "http://comp30022-test-alb-1148232580.ap-northeast-1.elb.amazonaws.com/"
 #          auto/run-e2e-tests-on-deployed-app ${{ needs.deploy-alb.outputs.alb_dns_name }}
 
+      - name: Upload Cypress Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+
 #  post-deploy-destroy-resources:
 #    runs-on: ubuntu-22.04
 #    if: always() # This job runs regardless of the success of previous jobs
