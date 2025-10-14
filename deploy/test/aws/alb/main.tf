@@ -14,18 +14,31 @@ resource "aws_security_group" "alb" {
   name   = "${var.project_prefix}-alb-sg"
   vpc_id = var.vpc_id
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+# This rule is added to the ECS security group (created in the infra module)
+# to allow traffic from the ALB security group.
+resource "aws_security_group_rule" "allow_alb_to_ecs" {
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = var.ecs_security_group_id
+  source_security_group_id = aws_security_group.alb.id
+  description              = "Allow HTTP traffic from ALB to ECS"
+}
+
 
 # ---------- ALB ----------
 resource "aws_lb" "alb" {
