@@ -7,11 +7,18 @@ echo "-------------------- 🧪 Running E2E Tests --------------------"
 
 APP_URL=$1
 
+# Ensure the URL starts with http:// or https://
+if [[ ! "$APP_URL" =~ ^https?:// ]]; then
+  APP_URL="http://${APP_URL}"
+fi
+
 echo "APP_URL=${APP_URL}"
 
 cd frontend
 docker rm -f cypress-e2e || true
+
+# Use CYPRESS_BASE_URL to override the baseUrl in cypress.config.js
 docker run --rm --name cypress-e2e --network=host \
     -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
-    -e APP_BASE_URL=${APP_URL} \
+    -e CYPRESS_BASE_URL=${APP_URL} \
     frontend-dev npx cypress run
