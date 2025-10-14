@@ -104,6 +104,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Configure AWS credentials (admin, temporary)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -128,7 +135,7 @@ jobs:
   run-e2e-test:
     runs-on: ubuntu-22.04
     # if: github.event.inputs.confirm == 'YES'
-#    needs: [deploy-infra, deploy-alb, deploy-app-and-test]
+    needs: [deploy-app-and-test]
     steps:
       - uses: actions/checkout@v4
 
