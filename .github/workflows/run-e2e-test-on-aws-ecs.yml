@@ -6,6 +6,9 @@ on:
         description: "Type YES to confirm deployment"
         required: true
         default: "NO"
+  push:
+    branches:
+      - remove-alb-in-test-env
 
 permissions:
   id-token: write
@@ -128,7 +131,7 @@ jobs:
 
   run-e2e-test:
     runs-on: ubuntu-22.04
-    if: github.event.inputs.confirm == 'YES'
+    # if: github.event.inputs.confirm == 'YES'
 #    needs: [deploy-infra, deploy-alb, deploy-app-and-test]
     steps:
       - uses: actions/checkout@v4
