@@ -51,23 +51,6 @@ resource "aws_iam_role_policy_attachment" "exec_attach" {
 }
 
 # ---------- Security Groups ----------
-resource "aws_security_group" "alb" {
-  name   = "${var.project_prefix}-alb-sg"
-  vpc_id = module.vpc.vpc_id
-  ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 resource "aws_security_group" "ecs" {
   name   = "${var.project_prefix}-ecs-sg"
   vpc_id = module.vpc.vpc_id
@@ -75,42 +58,12 @@ resource "aws_security_group" "ecs" {
     from_port = 80
     to_port   = 80
     protocol  = "tcp"
-    security_groups = [aws_security_group.alb.id]
+    cidr_blocks = ["0.0.0.0/0"] # WARNING: Less secure, allows traffic from anywhere on port 80
   }
   egress {
     from_port = 0
     to_port   = 0
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# ---------- ALB ----------
-resource "aws_lb" "alb" {
-  name               = "${var.project_prefix}-alb"
-  load_balancer_type = "application"
-  subnets            = module.vpc.public_subnets
-  security_groups    = [aws_security_group.alb.id]
-}
-
-resource "aws_lb_target_group" "nginx_tg" {
-  name        = "${var.project_prefix}-nginx-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = module.vpc.vpc_id
-  target_type = "ip"
-  health_check {
-    path = "/healthcheck"
-  }
-}
-
-resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.alb.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.nginx_tg.arn
   }
 }
