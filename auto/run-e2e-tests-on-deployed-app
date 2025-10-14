@@ -21,19 +21,19 @@ docker rm -f cypress-e2e || true
 docker run --rm --name cypress-e2e --network=host \
     -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
     -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "frontend/cypress/e2e/register.cy.js"
+    frontend-dev npx cypress run --spec "cypress/e2e/register.cy.js"
 
 docker run --rm --name cypress-e2e --network=host \
     -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
     -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "frontend/cypress/e2e/login.cy.js"
+    frontend-dev npx cypress run --spec "cypress/e2e/login.cy.js"
 
 docker run --rm --name cypress-e2e --network=host \
     -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
     -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "frontend/cypress/e2e/home.cy.js"
+    frontend-dev npx cypress run --spec "cypress/e2e/home.cy.js"
 
 docker run --rm --name cypress-e2e --network=host \
     -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
     -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "frontend/cypress/e2e/profile.cy.js"
+    frontend-dev npx cypress run --spec "cypress/e2e/profile.cy.js"
