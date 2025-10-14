@@ -191,18 +191,18 @@ jobs:
         terraform plan
         terraform destroy -auto-approve
 
-    - name: Download ALB tfstate
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-alb.tfstate
-        path: deploy/test/aws/alb
-
-    - name: Terraform Destroy ALB
-      run: |
-        cd deploy/test/aws/alb
-        terraform init
-        terraform plan
-        terraform destroy -auto-approve
+#    - name: Download ALB tfstate
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: terraform-alb.tfstate
+#        path: deploy/test/aws/alb
+#
+#    - name: Terraform Destroy ALB
+#      run: |
+#        cd deploy/test/aws/alb
+#        terraform init
+#        terraform plan
+#        terraform destroy -auto-approve
 
 #    - name: Download Infra tfstate
 #      uses: actions/download-artifact@v4
