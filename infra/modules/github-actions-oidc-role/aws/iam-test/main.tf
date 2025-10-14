@@ -103,6 +103,7 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
         Effect = "Allow",
         Action = [
           "logs:CreateLogGroup",
+          "logs:DescribeLogGroups",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
           "logs:TagResource"
