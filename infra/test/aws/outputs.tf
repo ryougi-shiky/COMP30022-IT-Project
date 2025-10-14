@@ -14,7 +14,12 @@ output "cluster_id" {
 # =====================
 # VPC & Networking
 # =====================
-output "subnet_ids" {
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = module.vpc.vpc_id
+}
+
+output "public_subnets" {
   description = "List of public subnet IDs for ECS tasks or ALB"
   value       = module.vpc.public_subnets
 }
@@ -22,19 +27,6 @@ output "subnet_ids" {
 output "security_group_ids" {
   description = "ECS security group IDs"
   value       = [aws_security_group.ecs.id]
-}
-
-# =====================
-# ALB
-# =====================
-output "alb_target_group_arn" {
-  description = "Target group ARN for Nginx service"
-  value       = aws_lb_target_group.nginx_tg.arn
-}
-
-output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer"
-  value       = aws_lb.alb.dns_name
 }
 
 # =====================
