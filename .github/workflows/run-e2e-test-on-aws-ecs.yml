@@ -100,7 +100,7 @@ jobs:
   deploy-app-and-test:
     runs-on: ubuntu-22.04
     # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
-    needs: [deploy-alb]
+#    needs: [deploy-alb]
     steps:
       - uses: actions/checkout@v4
 
