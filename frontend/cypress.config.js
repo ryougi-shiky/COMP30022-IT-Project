@@ -6,6 +6,11 @@ module.exports = defineConfig({
     ? parseInt(process.env.CYPRESS_DEFAULT_COMMAND_TIMEOUT)
     : 8000,
 
+  // Timeout for waiting for a page to load, can be overridden by env var
+  pageLoadTimeout: process.env.CYPRESS_PAGE_LOAD_TIMEOUT
+    ? parseInt(process.env.CYPRESS_PAGE_LOAD_TIMEOUT)
+    : 120000,
+
   e2e: {
     // This is the default baseUrl.
     // It can be overridden by the CYPRESS_BASE_URL environment variable.
