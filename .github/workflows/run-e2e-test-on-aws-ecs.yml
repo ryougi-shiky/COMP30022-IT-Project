@@ -152,7 +152,6 @@ jobs:
         run: |
           echo "Testing ALB URL"
           curl -I ${{ needs.deploy-alb.outputs.alb_dns_name }} || exit 1
-#          curl -I "comp30022-test-alb-637568342.ap-northeast-1.elb.amazonaws.com" || exit 1
 
       - name: Run Cypress E2E Test on ALB
         run: |
