@@ -134,7 +134,6 @@ jobs:
 
       - name: Load ALB ENV
         run: |
-          echo "ALB_DNS_NAME=$(cat alb_dns.txt)" >> $GITHUB_ENV
           echo "ALB_TARGET_GROUP_ARN=$(cat alb_tg_arn.txt)" >> $GITHUB_ENV
           echo "ALB ENV loaded."
 
@@ -167,6 +166,16 @@ jobs:
       - name: Install Docker Environment
         run: |
           ./auto/install-github-action-env
+
+      - name: Download ALB ENV
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-outputs
+
+      - name: Load ALB ENV
+        run: |
+          echo "ALB_DNS_NAME=$(cat alb_dns.txt)" >> $GITHUB_ENV
+          echo "ALB ENV loaded."
 
       - name: Test ALB connectivity
         run: |
