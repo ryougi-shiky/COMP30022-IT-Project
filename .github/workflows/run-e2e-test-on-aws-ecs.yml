@@ -171,7 +171,7 @@ jobs:
       - name: Test ALB connectivity
         run: |
           echo "Testing ALB URL"
-          curl -I ${ALB_DNS_NAME} || exit 1
+          curl -I "${{ env.ALB_DNS_NAME }}" || exit 1
 
       - name: Run Cypress E2E Test on ALB
         run: |
@@ -200,12 +200,14 @@ jobs:
         audience: sts.amazonaws.com
 
     - name: Download App tfstate
+      if: always()
       uses: actions/download-artifact@v4
       with:
         name: terraform-app.tfstate
         path: deploy/test/aws
 
     - name: Terraform Destroy App
+      if: always()
       run: |
         cd deploy/test/aws
         terraform init
@@ -213,12 +215,14 @@ jobs:
         terraform destroy -auto-approve
 
     - name: Download ALB tfstate
+      if: always()
       uses: actions/download-artifact@v4
       with:
         name: terraform-alb.tfstate
         path: deploy/test/aws/alb
 
     - name: Terraform Destroy ALB
+      if: always()
       run: |
         cd deploy/test/aws/alb
         terraform init
@@ -226,12 +230,14 @@ jobs:
         terraform destroy -auto-approve
 
 #    - name: Download Infra tfstate
+#      if: always()
 #      uses: actions/download-artifact@v4
 #      with:
 #        name: terraform-infra.tfstate
 #        path: infra/test/aws
 #
 #    - name: Terraform Destroy Infra
+#      if: always()
 #      run: |
 #        cd infra/test/aws
 #        terraform init
