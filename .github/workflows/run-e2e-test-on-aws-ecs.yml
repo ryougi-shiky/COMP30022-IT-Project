@@ -144,7 +144,7 @@ jobs:
           terraform init
           terraform plan
           terraform apply \
-            -var alb_target_group_arn=${ALB_TARGET_GROUP_ARN} \
+            -var alb_target_group_arn=${{ env.ALB_TARGET_GROUP_ARN }} \
             -auto-approve
 
       - name: Save Terraform App state
@@ -176,7 +176,7 @@ jobs:
       - name: Run Cypress E2E Test on ALB
         run: |
           auto/build-frontend-dev
-          auto/run-e2e-tests-on-deployed-app "${ALB_DNS_NAME}"
+          auto/run-e2e-tests-on-deployed-app "${{ env.ALB_DNS_NAME }}"
 
       - name: Upload Cypress Screenshots
         if: always()
