@@ -3,9 +3,9 @@ output "task_definition_arn" {
 }
 
 output "ecs_service_name" {
-  value = aws_ecs_service.app.name
+  value = nonsensitive(aws_ecs_service.app.name)
 }
 
 output "ecs_service_arn" {
-  value = aws_ecs_service.app.arn
+  value = nonsensitive(aws_ecs_service.app.arn)
 }
