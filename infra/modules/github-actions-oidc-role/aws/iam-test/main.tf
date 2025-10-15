@@ -46,8 +46,11 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ecs:CreateCluster",
           "ecs:DeleteCluster",
           "ecs:DescribeClusters",
+          "ecs:CreateService",
           "ecs:UpdateService",
+          "ecs:DeleteService",
           "ecs:RegisterTaskDefinition",
+          "ecs:DeregisterTaskDefinition",
           "ecs:DescribeServices",
           "ecs:DescribeTaskDefinition",
           "ecs:DescribeTasks",
@@ -73,6 +76,7 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ec2:RevokeSecurityGroupEgress",
           "ec2:CreateInternetGateway",
           "ec2:AttachInternetGateway",
+          "ec2:DescribeNetworkInterfaces",
           "ec2:CreateRouteTable",
           "ec2:AssociateRouteTable",
           "ec2:CreateRoute",
@@ -103,8 +107,13 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
         Effect = "Allow",
         Action = [
           "logs:CreateLogGroup",
+          "logs:DeleteLogGroup",
           "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+          "logs:DescribeLogGroups",
+          "logs:TagResource",
+          "logs:UntagResource",
+          "logs:ListTagsForResource"
         ],
         Resource = "*"
       },
@@ -121,9 +130,13 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "elasticloadbalancing:CreateTargetGroup",
           "elasticloadbalancing:DeleteTargetGroup",
           "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
           "elasticloadbalancing:ModifyListener",
           "elasticloadbalancing:CreateListener",
-          "elasticloadbalancing:DeleteListener"
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags"
         ],
         Resource = "*"
       },

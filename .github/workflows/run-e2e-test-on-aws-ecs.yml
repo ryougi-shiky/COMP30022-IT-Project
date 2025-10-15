@@ -1,4 +1,5 @@
 name: Run E2E Test on AWS ECS
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,18 +7,105 @@ on:
         description: "Type YES to confirm deployment"
         required: true
         default: "NO"
-  push:
-    branches:
-      - remove-alb-in-test-env
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  deploy-infra:
-    runs-on: ubuntu-22.04
+#  deploy-infra:
+#    runs-on: ubuntu-22.04
 #    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
+#    outputs:
+#      vpc_id: ${{ steps.outputs.outputs.vpc_id }}
+#      public_subnets: ${{ steps.outputs.outputs.public_subnets }}
+#      cluster_arn: ${{ steps.outputs.outputs.cluster_arn }}
+#      execution_role_arn: ${{ steps.outputs.outputs.execution_role_arn }}
+#      ecs_security_group_id: ${{ steps.outputs.outputs.ecs_security_group_id }}
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Configure AWS credentials via OIDC
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+#          audience: sts.amazonaws.com
+#
+#      - name: Terraform Deploy Infra
+#        run: |
+#          cd infra/test/aws
+#          terraform init
+#          terraform plan
+#          terraform apply -auto-approve
+#
+#      - name: Save Terraform Infra state
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: terraform-infra.tfstate
+#          path: infra/test/aws/terraform.tfstate
+#
+#      - name: Get Terraform Outputs
+#        id: outputs
+#        run: |
+#          cd infra/test/aws
+#          echo "vpc_id=$(terraform output -raw vpc_id)" >> $GITHUB_OUTPUT
+#          echo "public_subnets=$(terraform output -json public_subnets)" >> $GITHUB_OUTPUT
+#          echo "cluster_arn=$(terraform output -raw cluster_arn)" >> $GITHUB_OUTPUT
+#          echo "execution_role_arn=$(terraform output -raw execution_role_arn)" >> $GITHUB_OUTPUT
+#          # Assuming the output returns a list, and we need the first one.
+#          echo "ecs_security_group_id=$(terraform output -json security_group_ids | jq -r '''.[0]''')" >> $GITHUB_OUTPUT
+
+  deploy-alb:
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
+#    needs: deploy-infra
+    outputs:
+      alb_dns_name: ${{ steps.outputs.outputs.alb_dns_name }}
+      alb_target_group_arn: ${{ steps.outputs.outputs.alb_target_group_arn }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Terraform Deploy ALB
+        run: |
+          cd deploy/test/aws/alb
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
+
+      - name: Save Terraform ALB state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-alb.tfstate
+          path: deploy/test/aws/alb/terraform.tfstate
+
+      - name: Store ALB ENV
+        id: outputs
+        run: |
+          cd deploy/test/aws/alb
+          echo "$(terraform output -raw alb_dns_name)" >> alb_dns.txt
+          echo "$(terraform output -raw alb_target_group_arn)" >> alb_tg_arn.txt
+
+      - name: Upload Outputs as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-outputs
+          path: |
+            deploy/test/aws/alb/alb_dns.txt
+            deploy/test/aws/alb/alb_tg_arn.txt
+
+  deploy-app:
+    runs-on: ubuntu-22.04
+    needs: [deploy-alb]
     steps:
       - uses: actions/checkout@v4
 
@@ -28,35 +116,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-# Only create the IAM role once unless you have to delete and recreate it...
-#      - name: Terraform Creating IAM Role
-#        run: |
-#          cd infra/modules/github-actions-oidc-role/aws/iam-test
-#          terraform init
-#          terraform plan
-#          terraform apply -auto-approve
-#
-#      - name: Save Terraform IAM state
-#        if: always()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: terraform-iam.tfstate
-#          path: infra/modules/github-actions-oidc-role/aws/iam-test/terraform.tfstate
-
-      - name: Terraform Creating Infra
-        run: |
-          cd infra/test/aws
-          terraform init
-          terraform plan
-          terraform apply -auto-approve
-
-      - name: Save Terraform State
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-infra.tfstate
-          path: infra/test/aws/terraform.tfstate
-
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -64,87 +123,127 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
 
-      - name: Terraform Deploy App (Test Environment)
+      - name: Download ALB ENV
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-outputs
+
+      - name: Load ALB ENV
+        run: |
+          echo "ALB_TARGET_GROUP_ARN=$(cat alb_tg_arn.txt)" >> $GITHUB_ENV
+          echo "ALB ENV loaded."
+
+      - name: Terraform Deploy App
         run: |
           cd deploy/test/aws
           terraform init
           terraform plan
-          terraform apply -auto-approve
+          terraform apply \
+            -var alb_target_group_arn=${{ env.ALB_TARGET_GROUP_ARN }} \
+            -auto-approve
 
-      - name: Save Terraform Test App state
+      - name: Save Terraform App state
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: terraform-test-app.tfstate
+          name: terraform-app.tfstate
           path: deploy/test/aws/terraform.tfstate
 
-      - name: Output ALB
-        id: alb
+  run-e2e-test:
+    runs-on: ubuntu-22.04
+    needs: [deploy-app]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Docker Environment
         run: |
-          cd deploy/test/aws
-          alb_dns=$(terraform output -raw alb_dns_name)
-          echo "ALB DNS: $alb_dns"
-          echo "alb_dns=$alb_dns" >> $GITHUB_OUTPUT
+          ./auto/install-github-action-env
+
+      - name: Download ALB ENV
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-outputs
+
+      - name: Load ALB ENV
+        run: |
+          echo "ALB_DNS_NAME=$(cat alb_dns.txt)" >> $GITHUB_ENV
+          echo "ALB ENV loaded."
+
+      - name: Test ALB connectivity
+        run: |
+          echo "Testing ALB DNS: ${{ env.ALB_DNS_NAME }}"
+          curl -I "http://${{ env.ALB_DNS_NAME }}" || exit 1
 
       - name: Run Cypress E2E Test on ALB
         run: |
-          auto/run-e2e-tests-on-deployed-app ${{ steps.alb.outputs.alb_dns }}
+          auto/build-frontend-dev
+          auto/run-e2e-tests-on-deployed-app "${{ env.ALB_DNS_NAME }}"
 
+      - name: Upload Cypress Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
 
   post-deploy-destroy-resources:
     runs-on: ubuntu-22.04
     if: always()
-    needs:
-      - deploy-infra
-    permissions:
-      contents: read
-      id-token: write
-
+    needs: run-e2e-test
     steps:
     - uses: actions/checkout@v4
 
-    - name: Configure AWS credentials (admin, temporary)
+    - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
         aws-region: ${{ secrets.AWS_REGION }}
+        audience: sts.amazonaws.com
 
-#    - name: Download Terraform IAM state
-#      uses: actions/download-artifact@v4
-#      with:
-#        name: terraform-iam.tfstate
-#        path: infra/modules/github-actions-oidc-role/aws/iam-test
-#
-#    - name: Terraform Destroy IAM
-#      run: |
-#        cd infra/modules/github-actions-oidc-role/aws/iam-test
-#        terraform init
-#        terraform plan
-#        terraform destroy -auto-approve
-
-    - name: Download Test App tfstate
+    - name: Download App tfstate
+      if: always()
       uses: actions/download-artifact@v4
       with:
-        name: terraform-test-app.tfstate
+        name: terraform-app.tfstate
         path: deploy/test/aws
 
-    - name: Terraform Destroy Test App
+    - name: Terraform Destroy App
+      if: always()
       run: |
         cd deploy/test/aws
         terraform init
         terraform plan
         terraform destroy -auto-approve
 
-    - name: Download Infra tfstate
+    - name: Download ALB tfstate
+      if: always()
       uses: actions/download-artifact@v4
       with:
-        name: terraform-infra.tfstate
-        path: infra/test/aws
+        name: terraform-alb.tfstate
+        path: deploy/test/aws/alb
 
-    - name: Terraform Destroy Infra
+    - name: Terraform Destroy ALB
+      if: always()
       run: |
-        cd infra/test/aws
+        cd deploy/test/aws/alb
         terraform init
         terraform plan
         terraform destroy -auto-approve
+
+#    - name: Download Infra tfstate
+#      if: always()
+#      uses: actions/download-artifact@v4
+#      with:
+#        name: terraform-infra.tfstate
+#        path: infra/test/aws
+#
+#    - name: Terraform Destroy Infra
+#      if: always()
+#      run: |
+#        cd infra/test/aws
+#        terraform init
+#        terraform plan
+#        terraform destroy -auto-approve

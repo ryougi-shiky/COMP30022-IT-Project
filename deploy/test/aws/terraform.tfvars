@@ -6,9 +6,9 @@ image_mongodb = "public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:0.2.4"
 
 cluster_arn = "arn:aws:ecs:ap-northeast-1:219396432881:cluster/comp30022-test-cluster"
 cluster_id = "comp30022-test-cluster"
-subnet_ids = ["subnet-0d9a01f6d6abec230", "subnet-07c8a9f2b74b95f45"]
-security_group_ids = ["sg-08f56e73464b55e5d"]
-alb_target_group_arn = "arn:aws:elasticloadbalancing:ap-northeast-1:219396432881:targetgroup/comp30022-test-nginx-tg/1f7b1b1df7ae77d8"
+subnet_ids = ["subnet-06a11980a16b09796", "subnet-061425f15fb313454"]
+security_group_ids = ["sg-006ce0104858a0ba1"]
+alb_target_group_arn = "arn:aws:elasticloadbalancing:ap-northeast-1:219396432881:targetgroup/comp30022-test-nginx-tg/d1fd8debbf446134"
 execution_role_arn = "arn:aws:iam::219396432881:role/comp30022-test-ecs-task-execution-role"
 desired_count      = 1
 

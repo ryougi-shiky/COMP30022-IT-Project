@@ -126,7 +126,9 @@ describe('Profile Page', () => {
 
   it('should allow canceling edit of user info', () => {
     cy.visit(OWN_PROFILE_URL);
+
     cy.wait(500)
+
     let initialAge, initialLocation;
     cy.get('.rightbarInfoValue').eq(0).invoke('text').then((text) => {
       initialAge = text;
@@ -141,6 +143,8 @@ describe('Profile Page', () => {
     cy.get('input.rightbarInfoValue').eq(1).clear().type('Test Location');
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
+
+    cy.wait(500)
 
     cy.get('.rightbarInfoValue').eq(0).invoke('text').then((text) => {
       expect(text).to.equal(initialAge);
