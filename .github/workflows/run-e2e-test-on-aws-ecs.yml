@@ -64,9 +64,6 @@ jobs:
     runs-on: ubuntu-22.04
     # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
 #    needs: deploy-infra
-    outputs:
-      alb_dns_name: ${{ steps.outputs.outputs.alb_dns_name }}
-      alb_target_group_arn: ${{ steps.outputs.outputs.alb_target_group_arn }}
     steps:
       - uses: actions/checkout@v4
 
@@ -95,8 +92,8 @@ jobs:
         id: outputs
         run: |
           cd deploy/test/aws/alb
-          echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
-          echo "alb_target_group_arn=$(terraform output -raw alb_target_group_arn)" >> $GITHUB_OUTPUT
+          echo "ALB_DNS_NAME=$(terraform output -raw alb_dns_name)" >> $GITHUB_ENV
+          echo "ALB_TG_ARN=$(terraform output -raw alb_target_group_arn)" >> $GITHUB_ENV
 
   deploy-app:
     runs-on: ubuntu-22.04
@@ -125,7 +122,7 @@ jobs:
           terraform init
           terraform plan
           terraform apply \
-            -var alb_target_group_arn=${{ needs.deploy-alb.outputs.alb_target_group_arn }} \
+            -var alb_target_group_arn=$ALB_TG_ARN \
             -auto-approve
 
       - name: Save Terraform App state
@@ -157,7 +154,7 @@ jobs:
       - name: Run Cypress E2E Test on ALB
         run: |
           auto/build-frontend-dev
-          auto/run-e2e-tests-on-deployed-app "${{ needs.deploy-alb.outputs.alb_dns_name }}"
+          auto/run-e2e-tests-on-deployed-app $ALB_DNS_NAME
 
       - name: Upload Cypress Screenshots
         if: always()
