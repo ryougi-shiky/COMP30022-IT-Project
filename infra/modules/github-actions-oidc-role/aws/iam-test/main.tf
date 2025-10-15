@@ -126,9 +126,13 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "elasticloadbalancing:CreateTargetGroup",
           "elasticloadbalancing:DeleteTargetGroup",
           "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroupAttributes",
+          "elasticloadbalancing:ModifyLoadBalancerAttributes",
           "elasticloadbalancing:ModifyListener",
           "elasticloadbalancing:CreateListener",
-          "elasticloadbalancing:DeleteListener"
+          "elasticloadbalancing:DeleteListener",
+          "elasticloadbalancing:AddTags",
+          "elasticloadbalancing:RemoveTags"
         ],
         Resource = "*"
       },
