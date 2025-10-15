@@ -7,9 +7,6 @@ on:
         description: "Type YES to confirm deployment"
         required: true
         default: "NO"
-  push:
-    branches:
-      - remove-alb-in-test-env
 
 permissions:
   id-token: write
@@ -62,7 +59,7 @@ jobs:
 
   deploy-alb:
     runs-on: ubuntu-22.04
-    # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
+    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
 #    needs: deploy-infra
     outputs:
       alb_dns_name: ${{ steps.outputs.outputs.alb_dns_name }}
@@ -108,7 +105,6 @@ jobs:
 
   deploy-app:
     runs-on: ubuntu-22.04
-    # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     needs: [deploy-alb]
     steps:
       - uses: actions/checkout@v4
@@ -155,7 +151,6 @@ jobs:
 
   run-e2e-test:
     runs-on: ubuntu-22.04
-    # if: github.event.inputs.confirm == 'YES'
     needs: [deploy-app]
     steps:
       - uses: actions/checkout@v4
