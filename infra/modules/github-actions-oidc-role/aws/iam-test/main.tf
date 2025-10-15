@@ -48,6 +48,7 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "ecs:DescribeClusters",
           "ecs:CreateService",
           "ecs:UpdateService",
+          "ecs:DeleteService",
           "ecs:RegisterTaskDefinition",
           "ecs:DeregisterTaskDefinition",
           "ecs:DescribeServices",
