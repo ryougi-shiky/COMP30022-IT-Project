@@ -170,7 +170,7 @@ jobs:
 
       - name: Test ALB connectivity
         run: |
-          echo "Testing ALB URL"
+          echo "Testing ALB DNS: ${{ env.ALB_DNS_NAME }}"
           curl -I "http://${{ env.ALB_DNS_NAME }}" || exit 1
 
       - name: Run Cypress E2E Test on ALB
