@@ -95,8 +95,16 @@ jobs:
         id: outputs
         run: |
           cd deploy/test/aws/alb
-          echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
-          echo "alb_target_group_arn=$(terraform output -raw alb_target_group_arn)" >> $GITHUB_OUTPUT
+          echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> alb_dns.txt
+          echo "alb_target_group_arn=$(terraform output -raw alb_target_group_arn)" >> alb_tg_arn.txt
+
+      - name: Upload Outputs as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-outputs
+          path: |
+            deploy/test/aws/alb/alb_dns.txt
+            deploy/test/aws/alb/alb_tg_arn.txt
 
   deploy-app:
     runs-on: ubuntu-22.04
@@ -119,13 +127,24 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
 
+      - name: Download ALB ENV
+        uses: actions/download-artifact@v4
+        with:
+          name: deployment-outputs
+
+      - name: Load ALB ENV
+        run: |
+          echo "ALB_DNS_NAME=$(cat alb_dns.txt)" >> $GITHUB_ENV
+          echo "ALB_TARGET_GROUP_ARN=$(cat alb_tg_arn.txt)" >> $GITHUB_ENV
+          echo "ALB ENV loaded."
+
       - name: Terraform Deploy App
         run: |
           cd deploy/test/aws
           terraform init
           terraform plan
           terraform apply \
-            -var alb_target_group_arn=${{ needs.deploy-alb.outputs.alb_target_group_arn }} \
+            -var alb_target_group_arn=${ALB_TARGET_GROUP_ARN} \
             -auto-approve
 
       - name: Save Terraform App state
@@ -152,12 +171,12 @@ jobs:
       - name: Test ALB connectivity
         run: |
           echo "Testing ALB URL"
-          curl -I ${{ needs.deploy-alb.outputs.alb_dns_name }} || exit 1
+          curl -I ${ALB_DNS_NAME} || exit 1
 
       - name: Run Cypress E2E Test on ALB
         run: |
           auto/build-frontend-dev
-          auto/run-e2e-tests-on-deployed-app "${{ needs.deploy-alb.outputs.alb_dns_name }}"
+          auto/run-e2e-tests-on-deployed-app "${ALB_DNS_NAME}"
 
       - name: Upload Cypress Screenshots
         if: always()
