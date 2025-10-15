@@ -91,12 +91,12 @@ jobs:
           name: terraform-alb.tfstate
           path: deploy/test/aws/alb/terraform.tfstate
 
-      - name: Get Terraform Outputs
+      - name: Store ALB ENV
         id: outputs
         run: |
           cd deploy/test/aws/alb
-          echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> alb_dns.txt
-          echo "alb_target_group_arn=$(terraform output -raw alb_target_group_arn)" >> alb_tg_arn.txt
+          echo "$(terraform output -raw alb_dns_name)" >> alb_dns.txt
+          echo "$(terraform output -raw alb_target_group_arn)" >> alb_tg_arn.txt
 
       - name: Upload Outputs as Artifact
         uses: actions/upload-artifact@v4
