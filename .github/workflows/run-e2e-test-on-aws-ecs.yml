@@ -65,8 +65,8 @@ jobs:
     # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
 #    needs: deploy-infra
     outputs:
-      alb_dns_name: ${{ steps.alb-outputs.outputs.alb_dns_name }}
-      alb_tg_arn: ${{ steps.alb-outputs.outputs.alb_tg_arn }}
+      alb_dns_name: ${{ steps.outputs.outputs.alb_dns_name }}
+      alb_target_group_arn: ${{ steps.outputs.outputs.alb_target_group_arn }}
     steps:
       - uses: actions/checkout@v4
 
@@ -92,14 +92,11 @@ jobs:
           path: deploy/test/aws/alb/terraform.tfstate
 
       - name: Get Terraform Outputs
-        id: alb-outputs
+        id: outputs
         run: |
           cd deploy/test/aws/alb
-          alb_tg_arn=$(terraform output -raw alb_target_group_arn)
-          echo "alb_tg_arn=${alb_tg_arn}" >> $GITHUB_OUTPUT
-          alb_dns_name=$(terraform output -raw alb_dns_name)
-          echo "alb_dns_name=${alb_dns_name}" >> $GITHUB_OUTPUT
-
+          echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
+          echo "alb_target_group_arn=$(terraform output -raw alb_target_group_arn)" >> $GITHUB_OUTPUT
 
   deploy-app:
     runs-on: ubuntu-22.04
@@ -128,7 +125,7 @@ jobs:
           terraform init
           terraform plan
           terraform apply \
-            -var alb_target_group_arn=${{ needs.deploy-alb.outputs.alb_tg_arn }} \
+            -var alb_target_group_arn=${{ needs.deploy-alb.outputs.alb_target_group_arn }} \
             -auto-approve
 
       - name: Save Terraform App state
