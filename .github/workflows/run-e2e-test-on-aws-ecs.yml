@@ -97,7 +97,7 @@ jobs:
           echo "alb_dns_name=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
           echo "alb_target_group_arn=$(terraform output -raw alb_target_group_arn)" >> $GITHUB_OUTPUT
 
-  deploy-app-and-test:
+  deploy-app:
     runs-on: ubuntu-22.04
     # if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     needs: [deploy-alb]
