@@ -1,4 +1,5 @@
 name: Run E2E Test on AWS ECS
+
 on:
   workflow_dispatch:
     inputs:
@@ -137,7 +138,7 @@ jobs:
   run-e2e-test:
     runs-on: ubuntu-22.04
     # if: github.event.inputs.confirm == 'YES'
-    needs: [deploy-app-and-test]
+    needs: [deploy-app]
     steps:
       - uses: actions/checkout@v4
 
