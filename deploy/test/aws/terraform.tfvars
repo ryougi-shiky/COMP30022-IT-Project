@@ -1,8 +1,8 @@
 aws_account_id = "219396432881"
 
-image_nginx   = "public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:0.2.4"
-image_backend = "public.ecr.aws/g0n3r5g7/comp30022-forum/backend:0.2.4"
-image_mongodb = "public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:0.2.4"
+image_nginx   = "public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:latest"
+image_backend = "public.ecr.aws/g0n3r5g7/comp30022-forum/backend:latest"
+image_mongodb = "public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:latest"
 
 cluster_arn = "arn:aws:ecs:ap-northeast-1:219396432881:cluster/comp30022-test-cluster"
 cluster_id = "comp30022-test-cluster"
