@@ -5,7 +5,7 @@ on:
     paths:
       - version.txt
     branches:
-      - 'release/**'
+      - main
 
 jobs:
   publish-docker-images:
