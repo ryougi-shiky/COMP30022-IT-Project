@@ -4,24 +4,31 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "-------------------- 🙌 Push Docker Images to ECR --------------------"
-echo "-------------------- 🔐 Login AWS Public ECR --------------------"
-aws ecr-public get-login-password --region us-east-1 | \
-docker login --username AWS --password-stdin public.ecr.aws
 
-VERSION=latest
-DOCKER_USER=localuser
+DOCKER_USER=$1
+VERSION=$2
+IS_GITHUB_ACTION=${3:-false}
 
-echo "-------------------- ⚒️ Building Images --------------------"
+if [[ "$IS_GITHUB_ACTION" != "true" ]]; then
+  echo "-------------------- 🔐 Login AWS Public ECR --------------------"
+  aws ecr-public get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin public.ecr.aws
 
-auto/build $DOCKER_USER ${VERSION}
+  echo "-------------------- ⚒️ Building Images --------------------"
+  auto/build ${DOCKER_USER} ${VERSION}
+else
+  echo "-------------------- 📥 Pulling Images from DockerHub --------------------"
+  docker pull ${DOCKER_USER}/forum-backend:${VERSION}
+  docker pull ${DOCKER_USER}/forum-mongodb:${VERSION}
+  docker pull ${DOCKER_USER}/forum-nginx:${VERSION}
+fi
 
 echo "-------------------- 🏷️ Tagging Images --------------------"
-
-docker tag $DOCKER_USER/forum-backend:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/backend:${VERSION}
-docker tag $DOCKER_USER/forum-mongodb:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:${VERSION}
-docker tag $DOCKER_USER/forum-nginx:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:${VERSION}
+docker tag ${DOCKER_USER}/forum-backend:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/backend:latest
+docker tag ${DOCKER_USER}/forum-mongodb:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:latest
+docker tag ${DOCKER_USER}/forum-nginx:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:latest
 
 echo "-------------------- 🚀 Pushing Images to ECR --------------------"
-docker push public.ecr.aws/g0n3r5g7/comp30022-forum/backend:${VERSION}
-docker push public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:${VERSION}
-docker push public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:${VERSION}
+docker push public.ecr.aws/g0n3r5g7/comp30022-forum/backend:latest
+docker push public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:latest
+docker push public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:latest
