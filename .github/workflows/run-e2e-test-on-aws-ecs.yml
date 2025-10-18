@@ -64,7 +64,8 @@ jobs:
     runs-on: ubuntu-22.04
     #if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     outputs:
-      task_public_ip: ${{ steps.outputs.outputs.task_public_ip }}
+      cluster_name: ${{ steps.tf-output.outputs.cluster_name }}
+      service_name: ${{ steps.tf-output.outputs.service_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -96,19 +97,36 @@ jobs:
           name: terraform-app.tfstate
           path: deploy/test/aws/terraform.tfstate
 
-      - name: Get Task Public IP
-        id: outputs
+      - name: Get Terraform Outputs
+        id: tf-output
         run: |
           cd deploy/test/aws
-          TASK_IP=$(terraform output -raw task_public_ip)
-          echo "task_public_ip=$TASK_IP" >> $GITHUB_OUTPUT
-          echo "ECS Task Public IP: $TASK_IP"
+          echo "cluster_name=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
+          echo "service_name=$(terraform output -raw ecs_service_name)" >> $GITHUB_OUTPUT
 
   run-e2e-test:
     runs-on: ubuntu-22.04
     needs: [deploy-app]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Get ECS Task Public IP
+        id: get-ip
+        run: |
+          PUBLIC_IP=$(./auto/get-ecs-task-public-ip \
+            "${{ needs.deploy-app.outputs.cluster_name }}" \
+            "${{ needs.deploy-app.outputs.service_name }}" \
+            "${{ secrets.AWS_REGION }}")
+          
+          echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+          echo "ECS Task Public IP: $PUBLIC_IP"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -119,15 +137,15 @@ jobs:
 
       - name: Test ECS connectivity
         run: |
-          echo "Testing ECS Public IP: ${{ needs.deploy-app.outputs.task_public_ip }}"
-          # Wait for the service to be fully ready
+          echo "Testing ECS Public IP: ${{ env.PUBLIC_IP }}"
+          # Wait a bit more for the service to be fully ready
           sleep 30
-          curl -I "http://${{ needs.deploy-app.outputs.task_public_ip }}" || exit 1
+          curl -I "http://${{ env.PUBLIC_IP }}" || exit 1
 
       - name: Run Cypress E2E Test on ECS
         run: |
           auto/build-frontend-dev
-          auto/run-e2e-tests-on-deployed-app "${{ needs.deploy-app.outputs.task_public_ip }}"
+          auto/run-e2e-tests-on-deployed-app "${{ env.PUBLIC_IP }}"
 
       - name: Upload Cypress Screenshots
         if: always()

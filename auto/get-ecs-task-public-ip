@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -e
+
+# Script to get the public IP of an ECS task
+# Usage: ./auto/get-ecs-task-public-ip <cluster-name> <service-name> [region]
+
+CLUSTER_NAME="${1}"
+SERVICE_NAME="${2}"
+REGION="${3:-ap-northeast-1}"
+
+if [ -z "$CLUSTER_NAME" ] || [ -z "$SERVICE_NAME" ]; then
+  echo "Usage: $0 <cluster-name> <service-name> [region]"
+  echo "Example: $0 comp30022-test-cluster comp30022-app-svc ap-northeast-1"
+  exit 1
+fi
+
+echo "Waiting for ECS task to be running..."
+echo "Cluster: $CLUSTER_NAME"
+echo "Service: $SERVICE_NAME"
+echo "Region: $REGION"
+echo ""
+
+# Wait for task to be running (max 10 minutes)
+for i in {1..60}; do
+  TASK_ARN=$(aws ecs list-tasks \
+    --cluster "$CLUSTER_NAME" \
+    --service-name "$SERVICE_NAME" \
+    --desired-status RUNNING \
+    --region "$REGION" \
+    --query 'taskArns[0]' \
+    --output text 2>/dev/null || echo "")
+  
+  if [ ! -z "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+    echo "✓ Task found: $TASK_ARN"
+    
+    # Get ENI ID
+    ENI_ID=$(aws ecs describe-tasks \
+      --cluster "$CLUSTER_NAME" \
+      --tasks "$TASK_ARN" \
+      --region "$REGION" \
+      --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' \
+      --output text)
+    
+    if [ ! -z "$ENI_ID" ] && [ "$ENI_ID" != "None" ]; then
+      echo "✓ ENI found: $ENI_ID"
+      
+      # Get Public IP
+      PUBLIC_IP=$(aws ec2 describe-network-interfaces \
+        --network-interface-ids "$ENI_ID" \
+        --region "$REGION" \
+        --query 'NetworkInterfaces[0].Association.PublicIp' \
+        --output text)
+      
+      if [ ! -z "$PUBLIC_IP" ] && [ "$PUBLIC_IP" != "None" ]; then
+        echo "✓ Public IP found: $PUBLIC_IP"
+        echo ""
+        echo "$PUBLIC_IP"
+        exit 0
+      fi
+    fi
+  fi
+  
+  echo "Attempt $i/60: Task not ready yet, waiting 10s..."
+  sleep 10
+done
+
+echo ""
+echo "ERROR: Failed to get task public IP after 10 minutes"
+exit 1
