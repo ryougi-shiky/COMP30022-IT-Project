@@ -119,3 +119,72 @@ resource "aws_ecs_service" "app" {
   deployment_minimum_healthy_percent = 50
   deployment_maximum_percent         = 200
 }
+
+# Wait for the ECS task to be running and get its public IP
+resource "null_resource" "get_task_ip" {
+  depends_on = [aws_ecs_service.app]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -e
+      
+      # Wait for task to be in RUNNING state
+      echo "Waiting for ECS task to be running..."
+      for i in {1..60}; do
+        TASK_ARN=$(aws ecs list-tasks \
+          --cluster ${var.cluster_id != "" ? var.cluster_id : split("/", var.cluster_arn)[1]} \
+          --service-name ${aws_ecs_service.app.name} \
+          --desired-status RUNNING \
+          --region ${var.region} \
+          --query 'taskArns[0]' \
+          --output text 2>/dev/null || echo "")
+        
+        if [ ! -z "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+          echo "Task found: $TASK_ARN"
+          
+          # Get ENI ID
+          ENI_ID=$(aws ecs describe-tasks \
+            --cluster ${var.cluster_id != "" ? var.cluster_id : split("/", var.cluster_arn)[1]} \
+            --tasks $TASK_ARN \
+            --region ${var.region} \
+            --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' \
+            --output text)
+          
+          if [ ! -z "$ENI_ID" ] && [ "$ENI_ID" != "None" ]; then
+            echo "ENI found: $ENI_ID"
+            
+            # Get Public IP
+            PUBLIC_IP=$(aws ec2 describe-network-interfaces \
+              --network-interface-ids $ENI_ID \
+              --region ${var.region} \
+              --query 'NetworkInterfaces[0].Association.PublicIp' \
+              --output text)
+            
+            if [ ! -z "$PUBLIC_IP" ] && [ "$PUBLIC_IP" != "None" ]; then
+              echo "Public IP found: $PUBLIC_IP"
+              echo "$PUBLIC_IP" > ${path.module}/task_public_ip.txt
+              exit 0
+            fi
+          fi
+        fi
+        
+        echo "Attempt $i/60: Task not ready yet, waiting..."
+        sleep 10
+      done
+      
+      echo "ERROR: Failed to get task public IP after 10 minutes"
+      exit 1
+    EOT
+  }
+
+  triggers = {
+    service_name = aws_ecs_service.app.name
+    always_run   = timestamp()
+  }
+}
+
+# Read the public IP from the file
+data "local_file" "task_public_ip" {
+  depends_on = [null_resource.get_task_ip]
+  filename   = "${path.module}/task_public_ip.txt"
+}
