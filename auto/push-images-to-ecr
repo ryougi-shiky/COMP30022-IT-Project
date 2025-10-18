@@ -29,6 +29,37 @@ docker tag ${DOCKER_USER}/forum-mongodb:${VERSION} public.ecr.aws/g0n3r5g7/comp3
 docker tag ${DOCKER_USER}/forum-nginx:${VERSION} public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:latest
 
 echo "-------------------- 🚀 Pushing Images to ECR --------------------"
-docker push public.ecr.aws/g0n3r5g7/comp30022-forum/backend:latest
-docker push public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:latest
-docker push public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:latest
+
+# Function to push with retry
+push_with_retry() {
+  local image=$1
+  local max_attempts=3
+  local attempt=1
+  
+  while [ $attempt -le $max_attempts ]; do
+    echo "Pushing $image (attempt $attempt/$max_attempts)..."
+    if docker push "$image"; then
+      echo "✓ Successfully pushed $image"
+      return 0
+    else
+      echo "✗ Failed to push $image (attempt $attempt/$max_attempts)"
+      if [ $attempt -lt $max_attempts ]; then
+        echo "Retrying in 5 seconds..."
+        sleep 5
+        # Re-authenticate in case token expired
+        if [[ "$IS_GITHUB_ACTION" != "true" ]]; then
+          aws ecr-public get-login-password --region us-east-1 | \
+            docker login --username AWS --password-stdin public.ecr.aws
+        fi
+      fi
+      attempt=$((attempt + 1))
+    fi
+  done
+  
+  echo "✗ Failed to push $image after $max_attempts attempts"
+  return 1
+}
+
+push_with_retry public.ecr.aws/g0n3r5g7/comp30022-forum/backend:latest
+push_with_retry public.ecr.aws/g0n3r5g7/comp30022-forum/mongodb:latest
+push_with_retry public.ecr.aws/g0n3r5g7/comp30022-forum/nginx:latest
