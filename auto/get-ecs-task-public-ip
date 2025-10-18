@@ -9,16 +9,16 @@ SERVICE_NAME="${2}"
 REGION="${3:-ap-northeast-1}"
 
 if [ -z "$CLUSTER_NAME" ] || [ -z "$SERVICE_NAME" ]; then
-  echo "Usage: $0 <cluster-name> <service-name> [region]"
-  echo "Example: $0 comp30022-test-cluster comp30022-app-svc ap-northeast-1"
+  echo "Usage: $0 <cluster-name> <service-name> [region]" >&2
+  echo "Example: $0 comp30022-test-cluster comp30022-app-svc ap-northeast-1" >&2
   exit 1
 fi
 
-echo "Waiting for ECS task to be running..."
-echo "Cluster: $CLUSTER_NAME"
-echo "Service: $SERVICE_NAME"
-echo "Region: $REGION"
-echo ""
+echo "Waiting for ECS task to be running..." >&2
+echo "Cluster: $CLUSTER_NAME" >&2
+echo "Service: $SERVICE_NAME" >&2
+echo "Region: $REGION" >&2
+echo "" >&2
 
 # Wait for task to be running (max 10 minutes)
 for i in {1..60}; do
@@ -31,7 +31,7 @@ for i in {1..60}; do
     --output text 2>/dev/null || echo "")
   
   if [ ! -z "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
-    echo "✓ Task found: $TASK_ARN"
+    echo "✓ Task found: $TASK_ARN" >&2
     
     # Get ENI ID
     ENI_ID=$(aws ecs describe-tasks \
@@ -42,7 +42,7 @@ for i in {1..60}; do
       --output text)
     
     if [ ! -z "$ENI_ID" ] && [ "$ENI_ID" != "None" ]; then
-      echo "✓ ENI found: $ENI_ID"
+      echo "✓ ENI found: $ENI_ID" >&2
       
       # Get Public IP
       PUBLIC_IP=$(aws ec2 describe-network-interfaces \
@@ -52,18 +52,19 @@ for i in {1..60}; do
         --output text)
       
       if [ ! -z "$PUBLIC_IP" ] && [ "$PUBLIC_IP" != "None" ]; then
-        echo "✓ Public IP found: $PUBLIC_IP"
-        echo ""
+        echo "✓ Public IP found: $PUBLIC_IP" >&2
+        echo "" >&2
+        # Only output the IP to stdout
         echo "$PUBLIC_IP"
         exit 0
       fi
     fi
   fi
   
-  echo "Attempt $i/60: Task not ready yet, waiting 10s..."
+  echo "Attempt $i/60: Task not ready yet, waiting 10s..." >&2
   sleep 10
 done
 
-echo ""
-echo "ERROR: Failed to get task public IP after 10 minutes"
+echo "" >&2
+echo "ERROR: Failed to get task public IP after 10 minutes" >&2
 exit 1
