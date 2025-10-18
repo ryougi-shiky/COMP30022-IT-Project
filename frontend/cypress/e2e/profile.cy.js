@@ -127,14 +127,22 @@ describe('Profile Page', () => {
   it('should allow canceling edit of user info', () => {
     cy.visit(OWN_PROFILE_URL);
 
-    cy.wait(500)
+    // Ensure initial values are populated (avoid empty capture on slower CI)
+    cy.get('.rightbarInfoValue').eq(0).should(($el) => {
+      const txt = $el.text().trim();
+      expect(txt).to.not.equal('');
+    });
+    cy.get('.rightbarInfoValue').eq(1).should(($el) => {
+      const txt = $el.text().trim();
+      expect(txt).to.not.equal('');
+    });
 
     let initialAge, initialLocation;
     cy.get('.rightbarInfoValue').eq(0).invoke('text').then((text) => {
-      initialAge = text;
+      initialAge = text.trim();
     });
     cy.get('.rightbarInfoValue').eq(1).invoke('text').then((text) => {
-      initialLocation = text;
+      initialLocation = text.trim();
     });
 
     cy.get('.rightbarEditButton').contains('Edit').click();
@@ -144,13 +152,12 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
-    cy.wait(500)
-
+    // Ensure the UI reverted to the original values
     cy.get('.rightbarInfoValue').eq(0).invoke('text').then((text) => {
-      expect(text).to.equal(initialAge);
+      expect(text.trim()).to.equal(initialAge);
     });
     cy.get('.rightbarInfoValue').eq(1).invoke('text').then((text) => {
-      expect(text).to.equal(initialLocation);
+      expect(text.trim()).to.equal(initialLocation);
     });
   });
 
