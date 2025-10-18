@@ -51,7 +51,7 @@ locals {
         { name = "PORT", value = "17000" },
         { name = "MONGODB_URI", value = "mongodb://localhost:27017" },
         { name = "MONGODB_NAME", value = "ani" },
-        # WARNING: Allowing all origins is insecure. For production, replace "*" with your specific ALB DNS name.
+        # WARNING: Allowing all origins is insecure. For production, replace "*" with your specific domain.
         { name = "CORS_WHITELIST", value = "*" }
       ]
       logConfiguration = local.log_configuration
@@ -96,15 +96,13 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode(local.containers)
 }
 
-# ECS service that runs the task and registers nginx container in the provided ALB target group
+# ECS service that runs the task with public IP access
 resource "aws_ecs_service" "app" {
   name            = "${var.project_prefix}-app-svc"
   cluster         = var.cluster_id != "" ? var.cluster_id : var.cluster_arn
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
 
-  # Give the container time to start up before ALB health check start failing the task.
-  health_check_grace_period_seconds = 120
   depends_on = [aws_cloudwatch_log_group.app]
 
   network_configuration {
@@ -116,12 +114,6 @@ resource "aws_ecs_service" "app" {
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
     weight            = 1
-  }
-
-  load_balancer {
-    target_group_arn = var.alb_target_group_arn
-    container_name   = "nginx"
-    container_port   = 80
   }
 
   deployment_minimum_healthy_percent = 50

@@ -29,6 +29,7 @@ crash.log
 override.tf
 override.tf.json
 .terraform.lock.hcl
+task_public_ip.txt
 
 # SA keys / secrets
 sa-key.json

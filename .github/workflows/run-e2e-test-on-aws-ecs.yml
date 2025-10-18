@@ -57,55 +57,12 @@ jobs:
 #          # Assuming the output returns a list, and we need the first one.
 #          echo "ecs_security_group_id=$(terraform output -json security_group_ids | jq -r '''.[0]''')" >> $GITHUB_OUTPUT
 
-  deploy-alb:
-    runs-on: ubuntu-22.04
-    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
-#    needs: deploy-infra
-    outputs:
-      alb_dns_name: ${{ steps.outputs.outputs.alb_dns_name }}
-      alb_target_group_arn: ${{ steps.outputs.outputs.alb_target_group_arn }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          audience: sts.amazonaws.com
-
-      - name: Terraform Deploy ALB
-        run: |
-          cd deploy/test/aws/alb
-          terraform init
-          terraform plan
-          terraform apply -auto-approve
-
-      - name: Save Terraform ALB state
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-alb.tfstate
-          path: deploy/test/aws/alb/terraform.tfstate
-
-      - name: Store ALB ENV
-        id: outputs
-        run: |
-          cd deploy/test/aws/alb
-          echo "$(terraform output -raw alb_dns_name)" >> alb_dns.txt
-          echo "$(terraform output -raw alb_target_group_arn)" >> alb_tg_arn.txt
-
-      - name: Upload Outputs as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: deployment-outputs
-          path: |
-            deploy/test/aws/alb/alb_dns.txt
-            deploy/test/aws/alb/alb_tg_arn.txt
-
   deploy-app:
     runs-on: ubuntu-22.04
-    needs: [deploy-alb]
+    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
+    outputs:
+      cluster_name: ${{ steps.tf-output.outputs.cluster_name }}
+      service_name: ${{ steps.tf-output.outputs.service_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -123,24 +80,12 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           audience: sts.amazonaws.com
 
-      - name: Download ALB ENV
-        uses: actions/download-artifact@v4
-        with:
-          name: deployment-outputs
-
-      - name: Load ALB ENV
-        run: |
-          echo "ALB_TARGET_GROUP_ARN=$(cat alb_tg_arn.txt)" >> $GITHUB_ENV
-          echo "ALB ENV loaded."
-
       - name: Terraform Deploy App
         run: |
           cd deploy/test/aws
           terraform init
           terraform plan
-          terraform apply \
-            -var alb_target_group_arn=${{ env.ALB_TARGET_GROUP_ARN }} \
-            -auto-approve
+          terraform apply -auto-approve
 
       - name: Save Terraform App state
         if: always()
@@ -149,11 +94,36 @@ jobs:
           name: terraform-app.tfstate
           path: deploy/test/aws/terraform.tfstate
 
+      - name: Get Terraform Outputs
+        id: tf-output
+        run: |
+          cd deploy/test/aws
+          echo "cluster_name=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
+          echo "service_name=$(terraform output -raw ecs_service_name)" >> $GITHUB_OUTPUT
+
   run-e2e-test:
     runs-on: ubuntu-22.04
     needs: [deploy-app]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Get ECS Task Public IP
+        id: get-ip
+        run: |
+          PUBLIC_IP=$(./auto/get-ecs-task-public-ip \
+            "${{ needs.deploy-app.outputs.cluster_name }}" \
+            "${{ needs.deploy-app.outputs.service_name }}" \
+            "${{ secrets.AWS_REGION }}")
+          
+          echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
+          echo "ECS Task Public IP: $PUBLIC_IP"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -162,25 +132,17 @@ jobs:
         run: |
           ./auto/install-github-action-env
 
-      - name: Download ALB ENV
-        uses: actions/download-artifact@v4
-        with:
-          name: deployment-outputs
-
-      - name: Load ALB ENV
+      - name: Test ECS connectivity
         run: |
-          echo "ALB_DNS_NAME=$(cat alb_dns.txt)" >> $GITHUB_ENV
-          echo "ALB ENV loaded."
+          echo "Testing ECS Public IP: ${{ env.PUBLIC_IP }}"
+          # Wait a bit more for the service to be fully ready
+          sleep 30
+          curl -I "http://${{ env.PUBLIC_IP }}" || exit 1
 
-      - name: Test ALB connectivity
-        run: |
-          echo "Testing ALB DNS: ${{ env.ALB_DNS_NAME }}"
-          curl -I "http://${{ env.ALB_DNS_NAME }}" || exit 1
-
-      - name: Run Cypress E2E Test on ALB
+      - name: Run Cypress E2E Test on ECS
         run: |
           auto/build-frontend-dev
-          auto/run-e2e-tests-on-deployed-app "${{ env.ALB_DNS_NAME }}"
+          auto/run-e2e-tests-on-deployed-app "${{ env.PUBLIC_IP }}"
 
       - name: Upload Cypress Screenshots
         if: always()
@@ -214,21 +176,6 @@ jobs:
       if: always()
       run: |
         cd deploy/test/aws
-        terraform init
-        terraform plan
-        terraform destroy -auto-approve
-
-    - name: Download ALB tfstate
-      if: always()
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-alb.tfstate
-        path: deploy/test/aws/alb
-
-    - name: Terraform Destroy ALB
-      if: always()
-      run: |
-        cd deploy/test/aws/alb
         terraform init
         terraform plan
         terraform destroy -auto-approve

@@ -58,7 +58,7 @@ resource "aws_security_group" "ecs" {
     from_port = 80
     to_port   = 80
     protocol  = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # WARNING: Less secure, allows traffic from anywhere on port 80
+    cidr_blocks = ["0.0.0.0/0"] # Allow public HTTP traffic directly to ECS tasks
   }
   egress {
     from_port = 0
