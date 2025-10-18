@@ -61,8 +61,7 @@ jobs:
     runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     outputs:
-      cluster_name: ${{ steps.outputs.outputs.cluster_name }}
-      service_name: ${{ steps.outputs.outputs.service_name }}
+      task_public_ip: ${{ steps.outputs.outputs.task_public_ip }}
     steps:
       - uses: actions/checkout@v4
 
@@ -94,54 +93,19 @@ jobs:
           name: terraform-app.tfstate
           path: deploy/test/aws/terraform.tfstate
 
-      - name: Get ECS Service Info
+      - name: Get Task Public IP
         id: outputs
         run: |
           cd deploy/test/aws
-          echo "cluster_name=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
-          echo "service_name=$(terraform output -raw ecs_service_name)" >> $GITHUB_OUTPUT
+          TASK_IP=$(terraform output -raw task_public_ip)
+          echo "task_public_ip=$TASK_IP" >> $GITHUB_OUTPUT
+          echo "ECS Task Public IP: $TASK_IP"
 
   run-e2e-test:
     runs-on: ubuntu-22.04
     needs: [deploy-app]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          audience: sts.amazonaws.com
-
-      - name: Get ECS Task Public IP
-        run: |
-          # Get the task ARN from the ECS service
-          TASK_ARN=$(aws ecs list-tasks \
-            --cluster ${{ needs.deploy-app.outputs.cluster_name }} \
-            --service-name ${{ needs.deploy-app.outputs.service_name }} \
-            --query 'taskArns[0]' \
-            --output text)
-          
-          echo "Task ARN: $TASK_ARN"
-          
-          # Get the ENI ID from the task
-          ENI_ID=$(aws ecs describe-tasks \
-            --cluster ${{ needs.deploy-app.outputs.cluster_name }} \
-            --tasks $TASK_ARN \
-            --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' \
-            --output text)
-          
-          echo "ENI ID: $ENI_ID"
-          
-          # Get the public IP from the ENI
-          PUBLIC_IP=$(aws ec2 describe-network-interfaces \
-            --network-interface-ids $ENI_ID \
-            --query 'NetworkInterfaces[0].Association.PublicIp' \
-            --output text)
-          
-          echo "ECS_PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
-          echo "ECS Task Public IP: $PUBLIC_IP"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -152,15 +116,15 @@ jobs:
 
       - name: Test ECS connectivity
         run: |
-          echo "Testing ECS Public IP: ${{ env.ECS_PUBLIC_IP }}"
+          echo "Testing ECS Public IP: ${{ needs.deploy-app.outputs.task_public_ip }}"
           # Wait for the service to be fully ready
           sleep 30
-          curl -I "http://${{ env.ECS_PUBLIC_IP }}" || exit 1
+          curl -I "http://${{ needs.deploy-app.outputs.task_public_ip }}" || exit 1
 
       - name: Run Cypress E2E Test on ECS
         run: |
           auto/build-frontend-dev
-          auto/run-e2e-tests-on-deployed-app "${{ env.ECS_PUBLIC_IP }}"
+          auto/run-e2e-tests-on-deployed-app "${{ needs.deploy-app.outputs.task_public_ip }}"
 
       - name: Upload Cypress Screenshots
         if: always()
