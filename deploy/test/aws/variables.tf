@@ -48,12 +48,7 @@ variable "subnet_ids" {
 
 variable "security_group_ids" {
   type        = list(string)
-  description = "Security group ids to attach to tasks (should allow needed egress and ALB ingress). Provided by infra."
-}
-
-variable "alb_target_group_arn" {
-  type        = string
-  description = "ALB Target Group ARN (nginx target) created in infra"
+  description = "Security group ids to attach to tasks (should allow needed egress and public ingress on port 80). Provided by infra."
 }
 
 variable "execution_role_arn" {

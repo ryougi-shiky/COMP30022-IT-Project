@@ -34,7 +34,7 @@ resource "aws_iam_role" "github_actions_role" {
 
 resource "aws_iam_policy" "github_actions_ecs_policy" {
   name        = "${var.role_name}Policy"
-  description = "Policy for GitHub Actions Terraform deployments (ECS, VPC, IAM, EFS, Secrets, ALB, Logs, ECR)"
+  description = "Policy for GitHub Actions Terraform deployments (ECS, VPC, IAM, EFS, Secrets, Logs, ECR)"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -114,29 +114,6 @@ resource "aws_iam_policy" "github_actions_ecs_policy" {
           "logs:TagResource",
           "logs:UntagResource",
           "logs:ListTagsForResource"
-        ],
-        Resource = "*"
-      },
-
-      # ALB
-      {
-        Effect = "Allow",
-        Action = [
-          "elasticloadbalancing:CreateLoadBalancer",
-          "elasticloadbalancing:DeleteLoadBalancer",
-          "elasticloadbalancing:Describe*",
-          "elasticloadbalancing:RegisterTargets",
-          "elasticloadbalancing:DeregisterTargets",
-          "elasticloadbalancing:CreateTargetGroup",
-          "elasticloadbalancing:DeleteTargetGroup",
-          "elasticloadbalancing:ModifyTargetGroup",
-          "elasticloadbalancing:ModifyTargetGroupAttributes",
-          "elasticloadbalancing:ModifyLoadBalancerAttributes",
-          "elasticloadbalancing:ModifyListener",
-          "elasticloadbalancing:CreateListener",
-          "elasticloadbalancing:DeleteListener",
-          "elasticloadbalancing:AddTags",
-          "elasticloadbalancing:RemoveTags"
         ],
         Resource = "*"
       },

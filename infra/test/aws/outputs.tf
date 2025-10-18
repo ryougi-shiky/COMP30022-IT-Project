@@ -20,7 +20,7 @@ output "vpc_id" {
 }
 
 output "public_subnets" {
-  description = "List of public subnet IDs for ECS tasks or ALB"
+  description = "List of public subnet IDs for ECS tasks"
   value       = module.vpc.public_subnets
 }
 
