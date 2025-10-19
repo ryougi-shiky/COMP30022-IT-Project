@@ -18,8 +18,17 @@ auto/build-frontend-artifacts
 
 PLATFORMS="linux/amd64,linux/arm64"
 
-docker build --platform $PLATFORMS -f ./backend/Dockerfile.dev -t $DOCKER_USER/forum-backend:$VERSION ./backend &
-docker build --platform $PLATFORMS -f ./nginx/Dockerfile.dev -t $DOCKER_USER/forum-nginx:$VERSION . &
-docker build --platform $PLATFORMS -f ./db/mongo/Dockerfile.dev -t $DOCKER_USER/forum-mongodb:$VERSION ./db/mongo &
+# Create and use a builder that supports multi-platform builds
+echo "-------------------- 🔧 Setting up Docker Buildx --------------------"
+if ! docker buildx ls | grep -q "multiplatform-builder"; then
+  docker buildx create --name multiplatform-builder --use
+else
+  docker buildx use multiplatform-builder
+fi
+
+# Build images for multiple platforms
+docker buildx build --platform $PLATFORMS --load -f ./backend/Dockerfile.dev -t $DOCKER_USER/forum-backend:$VERSION ./backend &
+docker buildx build --platform $PLATFORMS --load -f ./nginx/Dockerfile.dev -t $DOCKER_USER/forum-nginx:$VERSION . &
+docker buildx build --platform $PLATFORMS --load -f ./db/mongo/Dockerfile.dev -t $DOCKER_USER/forum-mongodb:$VERSION ./db/mongo &
 
 wait
