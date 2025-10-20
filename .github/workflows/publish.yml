@@ -18,6 +18,9 @@ jobs:
     - name: Install Docker Environment
       run: ./auto/install-github-action-env
 
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
     - name: Read version from version.txt
       id: get_version
       run: ./auto/read-version
