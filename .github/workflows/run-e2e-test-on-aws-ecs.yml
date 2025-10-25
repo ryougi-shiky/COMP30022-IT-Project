@@ -89,7 +89,7 @@ jobs:
 
       - name: Save Terraform App state
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: terraform-app.tfstate
           path: deploy/test/aws/terraform.tfstate
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload Cypress Screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: cypress-screenshots
           path: frontend/cypress/screenshots
@@ -167,7 +167,7 @@ jobs:
 
     - name: Download App tfstate
       if: always()
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v6
       with:
         name: terraform-app.tfstate
         path: deploy/test/aws
