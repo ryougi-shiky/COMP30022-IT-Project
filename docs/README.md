@@ -53,18 +53,23 @@ The weather API key is not configured yet. Please purchase it here: https://rapi
 
 Please refer to the [docs/architecture.md](docs/architecture.md) for the architecture overview.
 
-## Identity System Documentation
+## Identity System Spike (Research)
 
-Comprehensive documentation about the authentication and authorization system:
+**📋 [Spike Summary](SPIKE-IDENTITY-SYSTEM-SUMMARY.md)** - Executive summary of the identity system spike research with findings, recommendations, and next steps.
+
+### Complete Documentation Set
 
 - **[Identity System Overview](identity-system.md)** - Complete analysis of current implementation, security considerations, and recommendations
 - **[Implementation Guide](identity-system-implementation-guide.md)** - Step-by-step guide for implementing JWT-based authentication
 - **[Current vs. Recommended Comparison](identity-system-comparison.md)** - Side-by-side comparison of approaches with code examples
+- **[Quick Reference Card](identity-system-quick-reference.md)** - Developer quick reference with code snippets and common tasks
 
-### Quick Links
-- Current system uses cookie-based authentication with bcrypt password hashing
-- Recommendations include JWT tokens, refresh tokens, rate limiting, and email verification
-- Migration effort estimated at 30-35 hours with phased rollout approach
+### Key Findings
+- ⚠️ **Critical**: Plain text passwords stored in cookies (must fix immediately)
+- ⚠️ **Critical**: Password hashes returned to frontend (security issue)
+- ✅ **Recommendation**: Migrate to JWT-based authentication
+- 📊 **Effort**: ~35 hours for full implementation
+- 🎯 **Approach**: Phased rollout over 3-4 weeks
 
 
 # License
