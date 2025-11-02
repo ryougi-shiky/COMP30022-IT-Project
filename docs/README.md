@@ -53,6 +53,19 @@ The weather API key is not configured yet. Please purchase it here: https://rapi
 
 Please refer to the [docs/architecture.md](docs/architecture.md) for the architecture overview.
 
+## Identity System Documentation
+
+Comprehensive documentation about the authentication and authorization system:
+
+- **[Identity System Overview](identity-system.md)** - Complete analysis of current implementation, security considerations, and recommendations
+- **[Implementation Guide](identity-system-implementation-guide.md)** - Step-by-step guide for implementing JWT-based authentication
+- **[Current vs. Recommended Comparison](identity-system-comparison.md)** - Side-by-side comparison of approaches with code examples
+
+### Quick Links
+- Current system uses cookie-based authentication with bcrypt password hashing
+- Recommendations include JWT tokens, refresh tokens, rate limiting, and email verification
+- Migration effort estimated at 30-35 hours with phased rollout approach
+
 
 # License
 
