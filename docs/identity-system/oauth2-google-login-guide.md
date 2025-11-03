@@ -949,6 +949,523 @@ passport.use(new FacebookStrategy({
 ));
 ```
 
+## E2E Testing with Google OAuth
+
+### Overview
+
+Testing OAuth flows in automated E2E tests is challenging because they involve third-party redirects. Here are proven strategies for testing Google Login in local and AWS/CI environments.
+
+### Strategy 1: Mock OAuth Provider (Recommended for E2E)
+
+**Best for**: Local development, CI/CD pipelines, AWS test environments
+
+Create a mock OAuth endpoint that simulates Google's behavior without requiring real Google credentials.
+
+#### Implementation
+
+**Backend: Create Mock OAuth Routes** (`backend/routes/auth.test.js`):
+```javascript
+const router = require('express').Router();
+const User = require('../models/User');
+const { generateAccessToken, generateRefreshToken } = require('../utils/jwtUtils');
+
+// Only enable in test environments
+if (process.env.NODE_ENV === 'test' || process.env.ENABLE_MOCK_OAUTH === 'true') {
+  
+  // Mock Google OAuth initiation
+  router.get('/google/mock', (req, res) => {
+    // Redirect directly to callback with mock data
+    const mockAuthCode = 'mock-auth-code-12345';
+    res.redirect(`/auth/google/callback/mock?code=${mockAuthCode}`);
+  });
+
+  // Mock Google OAuth callback
+  router.post('/google/callback/mock', async (req, res) => {
+    try {
+      const { email, name, sub } = req.body;
+      
+      // Use test user data
+      const testEmail = email || 'testuser@example.com';
+      const testName = name || 'Test User';
+      const testGoogleId = sub || 'mock-google-id-123';
+
+      // Find or create user
+      let user = await User.findOne({ googleId: testGoogleId });
+
+      if (!user) {
+        const existingUser = await User.findOne({ email: testEmail });
+        
+        if (existingUser) {
+          existingUser.googleId = testGoogleId;
+          await existingUser.save();
+          user = existingUser;
+        } else {
+          user = new User({
+            googleId: testGoogleId,
+            email: testEmail,
+            username: testName,
+            emailVerified: true,
+            oauthProvider: 'google'
+          });
+          await user.save();
+        }
+      }
+
+      // Generate JWT tokens
+      const accessToken = generateAccessToken(user._id, user.email);
+      const refreshToken = generateRefreshToken(user._id);
+
+      user.refreshTokens = user.refreshTokens || [];
+      user.refreshTokens.push(refreshToken);
+      await user.save();
+
+      res.json({
+        message: "Login successful",
+        user: user.toJSON(),
+        accessToken,
+        refreshToken
+      });
+    } catch (err) {
+      res.status(500).json({ message: "Mock OAuth failed" });
+    }
+  });
+}
+
+module.exports = router;
+```
+
+**Mount in server.js**:
+```javascript
+// backend/server.js
+if (process.env.NODE_ENV === 'test' || process.env.ENABLE_MOCK_OAUTH === 'true') {
+  const mockAuthRouter = require('./routes/auth.test');
+  app.use("/auth", mockAuthRouter);
+}
+```
+
+**Frontend: Mock OAuth Component** (`frontend/src/test-utils/MockGoogleLogin.jsx`):
+```javascript
+import React from 'react';
+import axios from 'axios';
+
+export const MockGoogleLogin = ({ onSuccess, onError }) => {
+  const handleMockLogin = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/google/callback/mock`,
+        {
+          email: 'testuser@example.com',
+          name: 'Test User',
+          sub: 'mock-google-id-123'
+        }
+      );
+
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+    } catch (err) {
+      if (onError) {
+        onError(err);
+      }
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleMockLogin}
+      data-testid="mock-google-login"
+      style={{
+        padding: '10px 20px',
+        backgroundColor: '#4285f4',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer'
+      }}
+    >
+      Mock Google Login (Test)
+    </button>
+  );
+};
+```
+
+**Use in Login Component**:
+```javascript
+import { GoogleLogin } from '@react-oauth/google';
+import { MockGoogleLogin } from '../test-utils/MockGoogleLogin';
+
+export default function Login() {
+  const useMockOAuth = process.env.REACT_APP_USE_MOCK_OAUTH === 'true';
+
+  return (
+    <div className="loginRight">
+      {useMockOAuth ? (
+        <MockGoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+        />
+      ) : (
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={handleGoogleError}
+        />
+      )}
+    </div>
+  );
+}
+```
+
+#### Cypress E2E Test Example
+
+```javascript
+// cypress/e2e/google-login.cy.js
+describe('Google OAuth Login', () => {
+  beforeEach(() => {
+    // Clear database or reset to known state
+    cy.task('db:seed');
+  });
+
+  it('should login with Google (mock)', () => {
+    cy.visit('/login');
+    
+    // Click mock Google login button
+    cy.get('[data-testid="mock-google-login"]').click();
+    
+    // Verify redirect to home
+    cy.url().should('include', '/');
+    
+    // Verify user is logged in
+    cy.contains('Test User').should('be.visible');
+    
+    // Verify tokens in localStorage
+    cy.window().then((window) => {
+      const accessToken = window.localStorage.getItem('accessToken');
+      const refreshToken = window.localStorage.getItem('refreshToken');
+      
+      expect(accessToken).to.exist;
+      expect(refreshToken).to.exist;
+    });
+  });
+
+  it('should handle OAuth errors', () => {
+    // Mock server error
+    cy.intercept('POST', '/auth/google/callback/mock', {
+      statusCode: 500,
+      body: { message: 'OAuth failed' }
+    });
+
+    cy.visit('/login');
+    cy.get('[data-testid="mock-google-login"]').click();
+    
+    // Verify error message
+    cy.contains('login failed').should('be.visible');
+  });
+});
+```
+
+### Strategy 2: Test User Accounts (Real OAuth)
+
+**Best for**: Manual testing, staging environments
+
+Google allows creating test user accounts that can be used for testing without going through full OAuth consent.
+
+#### Setup
+
+1. **Add Test Users in Google Cloud Console**:
+   - Go to OAuth consent screen
+   - Add test users (e.g., `testuser1@gmail.com`, `testuser2@gmail.com`)
+   - These users can authenticate without app verification
+
+2. **Create Dedicated Test Accounts**:
+   ```
+   Test Account 1: qa-tester-1@yourdomain.com
+   Test Account 2: qa-tester-2@yourdomain.com
+   ```
+
+3. **Store Test Credentials Securely**:
+   ```javascript
+   // cypress.env.json (DO NOT COMMIT)
+   {
+     "GOOGLE_TEST_EMAIL": "qa-tester-1@yourdomain.com",
+     "GOOGLE_TEST_PASSWORD": "secure-test-password"
+   }
+   ```
+
+4. **Automate Login with Cypress**:
+   ```javascript
+   // cypress/support/commands.js
+   Cypress.Commands.add('loginWithGoogle', () => {
+     cy.visit('/login');
+     
+     // Click real Google login
+     cy.get('[data-testid="google-login-button"]').click();
+     
+     // Google's login page
+     cy.origin('https://accounts.google.com', () => {
+       cy.get('input[type="email"]').type(Cypress.env('GOOGLE_TEST_EMAIL'));
+       cy.contains('Next').click();
+       cy.get('input[type="password"]').type(Cypress.env('GOOGLE_TEST_PASSWORD'));
+       cy.contains('Next').click();
+     });
+     
+     // Should redirect back to app
+     cy.url().should('include', '/');
+   });
+   ```
+
+### Strategy 3: Service Account (Backend Testing)
+
+**Best for**: Backend API testing
+
+Use Google Service Accounts for server-to-server testing.
+
+```javascript
+// test/auth.test.js
+const { google } = require('googleapis');
+
+describe('Google OAuth Backend', () => {
+  let serviceAccountToken;
+
+  before(async () => {
+    // Generate service account token
+    const auth = new google.auth.GoogleAuth({
+      keyFile: process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
+      scopes: ['https://www.googleapis.com/auth/userinfo.email']
+    });
+    
+    const client = await auth.getClient();
+    const tokenResponse = await client.getAccessToken();
+    serviceAccountToken = tokenResponse.token;
+  });
+
+  it('should verify Google ID token', async () => {
+    // Test token verification logic
+    const response = await request(app)
+      .post('/auth/google/mobile')
+      .send({ idToken: serviceAccountToken });
+    
+    expect(response.status).to.equal(200);
+  });
+});
+```
+
+### Environment Configuration
+
+#### Local Environment
+
+**backend/.env.local**:
+```env
+NODE_ENV=development
+ENABLE_MOCK_OAUTH=true
+GOOGLE_CLIENT_ID=mock-client-id
+GOOGLE_CLIENT_SECRET=mock-secret
+```
+
+**frontend/.env.local**:
+```env
+REACT_APP_USE_MOCK_OAUTH=true
+REACT_APP_BACKEND_URL=http://localhost:17000
+```
+
+#### AWS Test Environment
+
+**backend/.env.test**:
+```env
+NODE_ENV=test
+ENABLE_MOCK_OAUTH=true
+GOOGLE_CLIENT_ID=${GOOGLE_TEST_CLIENT_ID}
+GOOGLE_CLIENT_SECRET=${GOOGLE_TEST_CLIENT_SECRET}
+```
+
+Use AWS Systems Manager Parameter Store or Secrets Manager:
+```bash
+# Store in Parameter Store
+aws ssm put-parameter \
+  --name "/app/test/google-client-id" \
+  --value "your-test-client-id" \
+  --type "SecureString"
+
+aws ssm put-parameter \
+  --name "/app/test/google-client-secret" \
+  --value "your-test-client-secret" \
+  --type "SecureString"
+```
+
+Retrieve in deployment:
+```bash
+# In AWS CodeBuild or ECS task definition
+export GOOGLE_TEST_CLIENT_ID=$(aws ssm get-parameter --name "/app/test/google-client-id" --with-decryption --query "Parameter.Value" --output text)
+```
+
+### CI/CD Pipeline Configuration
+
+#### GitHub Actions Example
+
+```yaml
+# .github/workflows/e2e-tests.yml
+name: E2E Tests with OAuth
+
+on: [push, pull_request]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          cd backend && npm install
+          cd ../frontend && npm install
+      
+      - name: Start backend with mock OAuth
+        env:
+          NODE_ENV: test
+          ENABLE_MOCK_OAUTH: true
+          MONGODB_URI: mongodb://localhost:27017
+        run: |
+          cd backend
+          npm start &
+          sleep 5
+      
+      - name: Start frontend with mock OAuth
+        env:
+          REACT_APP_USE_MOCK_OAUTH: true
+          REACT_APP_BACKEND_URL: http://localhost:17000
+        run: |
+          cd frontend
+          npm start &
+          sleep 10
+      
+      - name: Run Cypress tests
+        run: |
+          cd frontend
+          npm run cypress:run
+      
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+```
+
+#### AWS CodeBuild Example
+
+```yaml
+# buildspec.yml
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo "Fetching secrets from Parameter Store"
+      - export GOOGLE_CLIENT_ID=$(aws ssm get-parameter --name "/app/test/google-client-id" --with-decryption --query "Parameter.Value" --output text)
+      - export ENABLE_MOCK_OAUTH=true
+      
+  build:
+    commands:
+      - echo "Running E2E tests"
+      - cd backend && npm install && npm start &
+      - cd ../frontend && npm install
+      - REACT_APP_USE_MOCK_OAUTH=true npm start &
+      - sleep 15
+      - npm run cypress:run
+      
+  post_build:
+    commands:
+      - echo "Tests completed"
+
+artifacts:
+  files:
+    - cypress/screenshots/**/*
+    - cypress/videos/**/*
+```
+
+### Best Practices
+
+1. **Use Mock OAuth for Most E2E Tests**
+   - Faster execution
+   - No external dependencies
+   - No quota limits
+   - Works offline
+
+2. **Use Real OAuth for Integration Tests**
+   - Test actual OAuth flow
+   - Verify third-party integration
+   - Run less frequently (e.g., nightly)
+
+3. **Secure Test Credentials**
+   - Never commit OAuth credentials
+   - Use environment variables
+   - Use secret management services (AWS Secrets Manager, GitHub Secrets)
+
+4. **Separate Test Data**
+   - Use dedicated test database
+   - Reset state between tests
+   - Use predictable test user IDs
+
+5. **Test Failure Scenarios**
+   - Invalid tokens
+   - Expired tokens
+   - Network failures
+   - Rate limiting
+
+### Example Test Suite Structure
+
+```
+cypress/
+├── e2e/
+│   ├── auth/
+│   │   ├── google-login-mock.cy.js       # Mock OAuth tests
+│   │   ├── google-login-real.cy.js        # Real OAuth tests (optional)
+│   │   ├── oauth-errors.cy.js             # Error handling
+│   │   └── account-linking.cy.js          # Account linking tests
+│   └── ...
+├── fixtures/
+│   └── test-users.json                     # Test user data
+└── support/
+    ├── commands.js                         # Custom commands
+    └── oauth-helpers.js                    # OAuth test utilities
+```
+
+### Monitoring and Debugging
+
+**Enable Debug Logging**:
+```javascript
+// backend/routes/auth.js
+if (process.env.NODE_ENV === 'test') {
+  router.use((req, res, next) => {
+    console.log(`[OAuth Test] ${req.method} ${req.path}`, req.body);
+    next();
+  });
+}
+```
+
+**Capture OAuth Failures**:
+```javascript
+// cypress/support/commands.js
+Cypress.on('fail', (error) => {
+  if (error.message.includes('OAuth')) {
+    cy.screenshot('oauth-failure');
+    cy.task('log', `OAuth Error: ${error.message}`);
+  }
+  throw error;
+});
+```
+
 ## Cost & Rate Limits
 
 ### Google OAuth Quotas (Free Tier)
