@@ -63,6 +63,13 @@ Please refer to the [docs/architecture.md](docs/architecture.md) for the archite
 - **[Implementation Guide](identity-system-implementation-guide.md)** - Step-by-step guide for implementing JWT-based authentication
 - **[Current vs. Recommended Comparison](identity-system-comparison.md)** - Side-by-side comparison of approaches with code examples
 - **[Quick Reference Card](identity-system-quick-reference.md)** - Developer quick reference with code snippets and common tasks
+- **[OAuth2 & Google Login Guide](oauth2-google-login-guide.md)** - Detailed plan for third-party authentication (Google, GitHub, etc.) with platform-specific implementations
+
+### Platform Compatibility
+- ✅ **Web**: Desktop & mobile browsers, PWAs
+- ✅ **Mobile**: iOS, Android (React Native, Flutter, native)
+- ✅ **Desktop**: Electron apps
+- ✅ **All platforms**: JWT-based authentication is universally supported
 
 ### Key Findings
 - ⚠️ **Critical**: Plain text passwords stored in cookies (must fix immediately)
