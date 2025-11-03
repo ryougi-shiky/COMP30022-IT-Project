@@ -55,15 +55,15 @@ Please refer to the [docs/architecture.md](docs/architecture.md) for the archite
 
 ## Identity System Spike (Research)
 
-**📋 [Spike Summary](SPIKE-IDENTITY-SYSTEM-SUMMARY.md)** - Executive summary of the identity system spike research with findings, recommendations, and next steps.
+**📋 [Spike Summary](identity-system/SPIKE-IDENTITY-SYSTEM-SUMMARY.md)** - Executive summary of the identity system spike research with findings, recommendations, and next steps.
 
 ### Complete Documentation Set
 
-- **[Identity System Overview](identity-system.md)** - Complete analysis of current implementation, security considerations, and recommendations
-- **[Implementation Guide](identity-system-implementation-guide.md)** - Step-by-step guide for implementing JWT-based authentication
-- **[Current vs. Recommended Comparison](identity-system-comparison.md)** - Side-by-side comparison of approaches with code examples
-- **[Quick Reference Card](identity-system-quick-reference.md)** - Developer quick reference with code snippets and common tasks
-- **[OAuth2 & Google Login Guide](oauth2-google-login-guide.md)** - Detailed plan for third-party authentication (Google, GitHub, etc.) with platform-specific implementations
+- **[Identity System Overview](identity-system/identity-system.md)** - Complete analysis of current implementation, security considerations, and recommendations
+- **[Implementation Guide](identity-system/identity-system-implementation-guide.md)** - Step-by-step guide for implementing JWT-based authentication
+- **[Current vs. Recommended Comparison](identity-system/identity-system-comparison.md)** - Side-by-side comparison of approaches with code examples
+- **[Quick Reference Card](identity-system/identity-system-quick-reference.md)** - Developer quick reference with code snippets and common tasks
+- **[OAuth2 & Google Login Guide](identity-system/oauth2-google-login-guide.md)** - Detailed plan for third-party authentication (Google, GitHub, etc.) with platform-specific implementations
 
 ### Platform Compatibility
 - ✅ **Web**: Desktop & mobile browsers, PWAs

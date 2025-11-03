@@ -56,9 +56,9 @@ Please refer to the [docs/architecture.md](docs/architecture.md) for the archite
 ## Identity System
 
 The project includes comprehensive documentation on the authentication and identity system:
-- [Identity System Overview](docs/identity-system.md) - Analysis and recommendations
-- [Implementation Guide](docs/identity-system-implementation-guide.md) - Step-by-step JWT implementation
-- [Comparison Document](docs/identity-system-comparison.md) - Current vs. recommended approach
+- [Identity System Overview](docs/identity-system/identity-system.md) - Analysis and recommendations
+- [Implementation Guide](docs/identity-system/identity-system-implementation-guide.md) - Step-by-step JWT implementation
+- [Comparison Document](docs/identity-system/identity-system-comparison.md) - Current vs. recommended approach
 
 See [docs/README.md](docs/README.md) for more details.
 
