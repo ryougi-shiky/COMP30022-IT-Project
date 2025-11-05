@@ -17,23 +17,19 @@ echo "APP_URL=${APP_URL}"
 cd frontend
 docker rm -f cypress-e2e || true
 
-# Use CYPRESS_BASE_URL to override the baseUrl in cypress.config.js
-docker run --rm --name cypress-e2e --network=host \
-    -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
-    -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "cypress/e2e/register.cy.js"
+# Run tests in sequence: register -> login -> home -> profile
+TEST_FILES=(
+    "register.cy.js"
+    "login.cy.js"
+    "home.cy.js"
+    "profile.cy.js"
+)
 
-docker run --rm --name cypress-e2e --network=host \
-    -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
-    -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "cypress/e2e/login.cy.js"
-
-docker run --rm --name cypress-e2e --network=host \
-    -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
-    -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "cypress/e2e/home.cy.js"
-
-docker run --rm --name cypress-e2e --network=host \
-    -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
-    -e CYPRESS_BASE_URL=${APP_URL} \
-    frontend-dev npx cypress run --spec "cypress/e2e/profile.cy.js"
+for test_file in "${TEST_FILES[@]}"; do
+    echo "Running test: $test_file"
+    docker run --rm --name cypress-e2e --network=host \
+        -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
+        -v "$(pwd)/cypress/fixtures:/app/cypress/fixtures" \
+        -e CYPRESS_BASE_URL=${APP_URL} \
+        frontend-dev npx cypress run --spec "cypress/e2e/$test_file"
+done

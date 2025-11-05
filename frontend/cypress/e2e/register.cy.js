@@ -36,6 +36,9 @@ describe('Register Flow', () => {
     cy.get('.loginLogo').should('be.visible');
     cy.get('.loginDesc').should('be.visible');
     cy.get('.loginBox').should('be.visible');
+
+    // Save the newly registered user credentials for subsequent tests
+    cy.task('writeUserData', { username, email, password });
   });
 
   it('should show error when passwords do not match', () => {

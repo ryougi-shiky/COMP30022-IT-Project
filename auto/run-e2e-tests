@@ -9,6 +9,19 @@ auto/launch-app
 echo "-------------------- 🧪 Running E2E Tests --------------------"
 cd frontend
 docker rm -f cypress-e2e || true
-docker run --rm --name cypress-e2e --network=host \
-    -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
-    frontend-dev npx cypress run
+
+# Run tests in sequence: register -> login -> home -> profile
+TEST_FILES=(
+    "register.cy.js"
+    "login.cy.js"
+    "home.cy.js"
+    "profile.cy.js"
+)
+
+for test_file in "${TEST_FILES[@]}"; do
+    echo "Running test: $test_file"
+    docker run --rm --name cypress-e2e --network=host \
+        -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
+        -v "$(pwd)/cypress/fixtures:/app/cypress/fixtures" \
+        frontend-dev npx cypress run --spec "cypress/e2e/$test_file"
+done
