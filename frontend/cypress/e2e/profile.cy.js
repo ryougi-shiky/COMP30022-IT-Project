@@ -1,14 +1,26 @@
 describe('Profile Page', () => {
   const FRONTEND_URL_LOGIN = `${Cypress.config().baseUrl}/login`;
   const FRONTEND_URL_HOME = `${Cypress.config().baseUrl}/`;
-  const TEST_USERNAME = 'didi';
-  const FRONTEND_URL_PROFILE = `${Cypress.config().baseUrl}/profile/${TEST_USERNAME}`;
-  const OWN_PROFILE_URL = `${Cypress.config().baseUrl}/profile/didi`;
+  
+  let testUser;
+  let TEST_USERNAME;
+  let FRONTEND_URL_PROFILE;
+  let OWN_PROFILE_URL;
+
+  before(() => {
+    // Read the user data created in the register test
+    cy.task('readUserData').then((userData) => {
+      testUser = userData;
+      TEST_USERNAME = userData.username;
+      FRONTEND_URL_PROFILE = `${Cypress.config().baseUrl}/profile/${TEST_USERNAME}`;
+      OWN_PROFILE_URL = `${Cypress.config().baseUrl}/profile/${TEST_USERNAME}`;
+    });
+  });
 
   beforeEach(() => {
     cy.visit(FRONTEND_URL_LOGIN);
-    cy.get('input[placeholder="Email"]').type('didi@gmail.com');
-    cy.get('input[placeholder="Password"]').type('yzm7046406');
+    cy.get('input[placeholder="Email"]').type(testUser.email);
+    cy.get('input[placeholder="Password"]').type(testUser.password);
     cy.get('[data-testid="login-button"]').click();
 
     cy.url().should('eq', FRONTEND_URL_HOME);
@@ -244,7 +256,7 @@ describe('Profile Page', () => {
         cy.get('.commentTop').should('exist');
         cy.get('.postProfileImg').should('exist');
         cy.get('.commentInfo').within(() => {
-          cy.get('.commentUsername').should('contain', 'didi');
+          cy.get('.commentUsername').should('contain', TEST_USERNAME);
           cy.get('.commentDate').should('not.be.empty');
         });
         cy.get('.commentText').should('contain', 'This is a test comment from the profile page');

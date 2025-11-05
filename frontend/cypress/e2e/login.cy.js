@@ -1,6 +1,16 @@
 describe('Login Flow', () => {
   const FRONTEND_URL_LOGIN = `${Cypress.config().baseUrl}/login`;
   const FRONTEND_URL_HOME = `${Cypress.config().baseUrl}/`;
+  
+  let testUser;
+
+  before(() => {
+    // Read the user data created in the register test
+    cy.task('readUserData').then((userData) => {
+      testUser = userData;
+    });
+  });
+
   beforeEach(() => {
   })
 
@@ -10,8 +20,8 @@ describe('Login Flow', () => {
     cy.get('input[placeholder="Email"]').should('be.visible');
     cy.get('input[placeholder="Password"]').should('be.visible');
 
-    cy.get('input[placeholder="Email"]').type('didi@gmail.com');
-    cy.get('input[placeholder="Password"]').type('yzm7046406');
+    cy.get('input[placeholder="Email"]').type(testUser.email);
+    cy.get('input[placeholder="Password"]').type(testUser.password);
 
     cy.get('[data-testid="login-button"]').click();
 

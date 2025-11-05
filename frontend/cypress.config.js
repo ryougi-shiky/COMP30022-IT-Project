@@ -1,4 +1,6 @@
 const { defineConfig } = require("cypress");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = defineConfig({
   // Default timeout for most commands, can be overridden by env var
@@ -16,7 +18,36 @@ module.exports = defineConfig({
     // It can be overridden by the CYPRESS_BASE_URL environment variable.
     baseUrl: "http://localhost:3000",
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      const userDataPath = path.join(__dirname, "cypress", "fixtures", "testUser.json");
+      
+      // Task to write user data to a fixture file
+      on("task", {
+        writeUserData(userData) {
+          const fixturesDir = path.dirname(userDataPath);
+          if (!fs.existsSync(fixturesDir)) {
+            fs.mkdirSync(fixturesDir, { recursive: true });
+          }
+          fs.writeFileSync(userDataPath, JSON.stringify(userData, null, 2));
+          return null;
+        },
+        
+        // Task to read user data from fixture file
+        readUserData() {
+          if (fs.existsSync(userDataPath)) {
+            const data = fs.readFileSync(userDataPath, "utf8");
+            return JSON.parse(data);
+          }
+          return null;
+        },
+        
+        // Task to clean up user data
+        deleteUserData() {
+          if (fs.existsSync(userDataPath)) {
+            fs.unlinkSync(userDataPath);
+          }
+          return null;
+        }
+      });
     },
   },
   env: {

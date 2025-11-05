@@ -2,10 +2,19 @@ describe('Home Page', () => {
   const FRONTEND_URL_LOGIN = `${Cypress.config().baseUrl}/login`;
   const FRONTEND_URL_HOME = `${Cypress.config().baseUrl}/`;
 
+  let testUser;
+
+  before(() => {
+    // Read the user data created in the register test
+    cy.task('readUserData').then((userData) => {
+      testUser = userData;
+    });
+  });
+
   beforeEach(() => {
     cy.visit(FRONTEND_URL_LOGIN);
-    cy.get('input[placeholder="Email"]').type('didi@gmail.com');
-    cy.get('input[placeholder="Password"]').type('yzm7046406');
+    cy.get('input[placeholder="Email"]').type(testUser.email);
+    cy.get('input[placeholder="Password"]').type(testUser.password);
     cy.get('[data-testid="login-button"]').click();
 
     cy.url().should('eq', FRONTEND_URL_HOME);
