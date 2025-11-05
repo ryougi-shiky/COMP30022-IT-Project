@@ -14,9 +14,6 @@ describe('Login Flow', () => {
     });
   });
 
-  beforeEach(() => {
-  })
-
   it('should login with correct credentials', () => {
     cy.visit(FRONTEND_URL_LOGIN)
 
