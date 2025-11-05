@@ -4,6 +4,9 @@ const authRouter = require('../routes/auth');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
+// Set test environment
+process.env.NODE_ENV = 'test';
+
 // Mock environment variables
 process.env.JWT_SECRET = 'test-jwt-secret-key-at-least-32-characters-long';
 process.env.REFRESH_TOKEN_SECRET = 'test-refresh-secret-key-at-least-32-characters-long';
@@ -34,24 +37,27 @@ describe('Auth Routes', () => {
     };
 
     it('should register a new user successfully', async () => {
-      const mockSave = jest.fn().mockResolvedValue(true);
+      const mockSave = jest.fn().mockImplementation(function() {
+        return Promise.resolve(this);
+      });
       const mockToJSON = jest.fn().mockReturnValue({
         _id: '507f1f77bcf86cd799439011',
         username: validUser.username,
         email: validUser.email
       });
 
-      const mockUser = {
-        _id: '507f1f77bcf86cd799439011',
-        username: validUser.username,
-        email: validUser.email,
-        refreshTokens: [],
-        save: mockSave,
-        toJSON: mockToJSON
-      };
-
+      // Create a constructor function that returns an object with save and toJSON methods
       User.findOne.mockResolvedValue(null);
-      User.mockImplementation(() => mockUser);
+      User.mockImplementation(function(data) {
+        this._id = '507f1f77bcf86cd799439011';
+        this.username = data.username;
+        this.email = data.email;
+        this.password = data.password;
+        this.refreshTokens = [];
+        this.save = mockSave.bind(this);
+        this.toJSON = mockToJSON;
+        return this;
+      });
 
       const res = await request(app)
         .post('/users/auth/register')
