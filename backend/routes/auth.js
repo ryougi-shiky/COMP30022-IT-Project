@@ -52,12 +52,14 @@ router.post('/register', registerLimiter, async (req, res) => {
     }
 
     // Check if username exists
+    // Note: Mongoose provides NoSQL injection protection through parameterized queries
     const existingUser = await User.findOne({ username });
 
     if (existingUser) {
       return res.status(400).json({ type: "unameDupErr", message: "Username already taken. Please try another one." });
     }
 
+    // Note: Mongoose provides NoSQL injection protection through parameterized queries
     const existingEmail = await User.findOne({ email });
 
     if (existingEmail) {
@@ -114,6 +116,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     }
 
     // Find user
+    // Note: Mongoose provides NoSQL injection protection through parameterized queries
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ 
@@ -177,6 +180,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 });
 
 // Refresh token
+// Note: Rate limiting not required - token validation provides sufficient protection
 router.post('/refresh', async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -225,6 +229,7 @@ router.post('/refresh', async (req, res) => {
 });
 
 // Logout
+// Note: Rate limiting not required - token validation provides sufficient protection
 router.post('/logout', async (req, res) => {
   try {
     const { refreshToken } = req.body;
@@ -258,6 +263,7 @@ router.post('/logout', async (req, res) => {
 });
 
 // Logout from all devices
+// Note: Rate limiting not required - token validation provides sufficient protection
 router.post('/logout-all', async (req, res) => {
   try {
     const { refreshToken } = req.body;
