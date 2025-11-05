@@ -53,6 +53,15 @@ The weather API key is not configured yet. Please purchase it here: https://rapi
 
 Please refer to the [docs/architecture.md](docs/architecture.md) for the architecture overview.
 
+## Identity System
+
+The project includes comprehensive documentation on the authentication and identity system:
+- [Identity System Overview](docs/identity-system/identity-system.md) - Analysis and recommendations
+- [Implementation Guide](docs/identity-system/identity-system-implementation-guide.md) - Step-by-step JWT implementation
+- [Comparison Document](docs/identity-system/identity-system-comparison.md) - Current vs. recommended approach
+
+See [docs/README.md](docs/README.md) for more details.
+
 
 # License
 
