@@ -11,4 +11,5 @@ cd frontend
 docker rm -f cypress-e2e || true
 docker run --rm --name cypress-e2e --network=host \
     -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
+    -v "$(pwd)/cypress/fixtures:/app/cypress/fixtures" \
     frontend-dev npx cypress run
