@@ -34,8 +34,13 @@ module.exports = defineConfig({
         // Task to read user data from fixture file
         readUserData() {
           if (fs.existsSync(userDataPath)) {
-            const data = fs.readFileSync(userDataPath, "utf8");
-            return JSON.parse(data);
+            try {
+              const data = fs.readFileSync(userDataPath, "utf8");
+              return JSON.parse(data);
+            } catch (error) {
+              console.error("Error reading or parsing testUser.json:", error);
+              return null;
+            }
           }
           return null;
         },

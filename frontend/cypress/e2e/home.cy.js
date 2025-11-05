@@ -7,6 +7,9 @@ describe('Home Page', () => {
   before(() => {
     // Read the user data created in the register test
     cy.task('readUserData').then((userData) => {
+      if (!userData) {
+        throw new Error('Test user data not found. Make sure register.cy.js runs first and successfully creates a user.');
+      }
       testUser = userData;
     });
   });
