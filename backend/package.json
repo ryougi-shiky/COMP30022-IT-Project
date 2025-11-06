@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "test": "jest --coverage --detectOpenHandles --forceExit"
+    "test": "jest --detectOpenHandles --forceExit"
   },
   "author": "",
   "license": "ISC",
@@ -14,13 +14,11 @@
     "cors": "^2.8.5",
     "dotenv": "^17.0.0",
     "express": "^5.0.0",
-    "express-rate-limit": "^8.2.1",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
-    "nodemailer": "^7.0.10",
     "nodemon": "^3.0.0",
     "path": "^0.12.7"
   },
@@ -30,12 +28,11 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "coveragePathIgnorePatterns": ["/node_modules/"],
-    "testMatch": ["**/__tests__/**/*.test.js"]
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ]
   },
   "devDependencies": {
-    "jest": "^30.2.0",
-    "mongodb-memory-server": "^10.3.0",
-    "supertest": "^7.1.4"
+    "jest": "^30.2.0"
   }
 }

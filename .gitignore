@@ -19,8 +19,6 @@ socket/
 *.env
 frontend/cypress/screenshots
 *.iml
-backend/coverage
-coverage
 
 
 # Terraform
