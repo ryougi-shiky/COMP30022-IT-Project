@@ -41,6 +41,38 @@ The JWT utilities require these environment variables:
 - `JWT_EXPIRY` - Access token expiry (default: 15m)
 - `REFRESH_TOKEN_EXPIRY` - Refresh token expiry (default: 7d)
 
+### Understanding JWT Secrets
+
+**Important**: JWT does not generate secrets automatically. You must provide them yourself.
+
+These secrets are cryptographic signing keys (similar to database passwords) used to:
+- Sign tokens to prevent tampering
+- Verify token authenticity
+- Ensure only your application can issue valid tokens
+
+Without proper secrets, anyone could forge valid tokens and compromise your authentication system.
+
+### How to Generate Secure Secrets
+
+You need to generate random, secret strings (minimum 32 characters for security):
+
+**Using Node.js:**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**Using OpenSSL:**
+```bash
+openssl rand -hex 32
+```
+
+**Example output:**
+```
+a7f3d9c2e8b4f1a6d5c9e7b3a2f8d4c1e6b9a5d7f2c8e4b1a9d6f3c7e2b5a8d4
+```
+
+Generate separate secrets for `JWT_SECRET` and `REFRESH_TOKEN_SECRET`, then store them securely in your environment configuration (never commit them to version control).
+
 ## Next Steps
 
 Subsequent PRs will build on this foundation:
