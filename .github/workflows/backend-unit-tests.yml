@@ -1,0 +1,62 @@
+name: Backend Unit Tests
+
+on:
+  push:
+    branches-ignore:
+      - 'release/**'
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-unit-tests.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-unit-tests.yml'
+
+jobs:
+  test:
+    name: Run Backend Unit Tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: backend
+        env:
+          JWT_SECRET: test-jwt-secret-key-for-ci-testing-min-32-characters
+          REFRESH_TOKEN_SECRET: test-refresh-token-secret-for-ci-testing-min-32-chars
+          NODE_ENV: test
+        run: npm test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: backend/coverage/
+          retention-days: 7
+
+      - name: Report test results
+        if: always()
+        run: |
+          echo '### 🧪 Backend Unit Tests Results' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          if [ -f backend/coverage/lcov.info ]; then
+            echo '✅ Tests completed successfully' >> $GITHUB_STEP_SUMMARY
+            echo '' >> $GITHUB_STEP_SUMMARY
+            echo 'Coverage report uploaded as artifact.' >> $GITHUB_STEP_SUMMARY
+          else
+            echo '❌ Tests failed or coverage not generated' >> $GITHUB_STEP_SUMMARY
+          fi
