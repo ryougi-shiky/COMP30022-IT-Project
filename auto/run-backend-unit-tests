@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "-------------------- 🧪 Running Backend Unit Tests --------------------"
+
+# Set environment variables for testing
+export JWT_SECRET="test-jwt-secret-key-for-ci-testing-min-32-characters"
+export REFRESH_TOKEN_SECRET="test-refresh-token-secret-for-ci-testing-min-32-chars"
+export NODE_ENV="test"
+
+# Build the backend test image if it doesn't exist
+echo "Building backend test environment..."
+docker build -f backend/Dockerfile.dev -t backend-test:latest backend
+
+# Run the tests in a container
+echo "Running unit tests in containerized environment..."
+docker run --rm \
+  --name backend-unit-tests \
+  -v "$(pwd)/backend:/app" \
+  -w /app \
+  -e JWT_SECRET="$JWT_SECRET" \
+  -e REFRESH_TOKEN_SECRET="$REFRESH_TOKEN_SECRET" \
+  -e NODE_ENV="$NODE_ENV" \
+  backend-test:latest \
+  npm test
+
+echo "✅ Backend unit tests completed successfully!"
