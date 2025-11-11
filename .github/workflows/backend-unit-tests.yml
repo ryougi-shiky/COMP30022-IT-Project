@@ -6,7 +6,6 @@ on:
       - 'release/**'
     paths:
       - 'backend/**'
-      - '.github/workflows/backend-unit-tests.yml'
 
 jobs:
   test:
