@@ -1,14 +1,9 @@
 name: Backend Unit Tests
 
 on:
-  pull_request:
-    paths:
-      - 'backend/**'
   push:
-    branches:
-      - 'main'
-      - 'master'
-      - 'develop'
+    branches-ignore:
+      - 'release/**'
     paths:
       - 'backend/**'
 
