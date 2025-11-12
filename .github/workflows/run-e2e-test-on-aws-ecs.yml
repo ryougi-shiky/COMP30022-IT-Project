@@ -82,7 +82,7 @@ jobs:
 
       - name: Terraform Deploy App
         run: |
-          sudo apt install terraform -y
+          apt install terraform -y
           cd deploy/test/aws
           terraform init
           terraform plan
@@ -176,7 +176,7 @@ jobs:
       - name: Terraform Destroy App
         if: always()
         run: |
-          sudo apt install terraform -y
+          apt install terraform -y
           cd deploy/test/aws
           terraform init
           terraform plan
