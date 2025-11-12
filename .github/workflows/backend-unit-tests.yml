@@ -6,7 +6,7 @@ on:
       - "*"
 
 jobs:
-  test:
+  backend-unit-tests:
     name: Run Backend Unit Tests
     runs-on: ubuntu-24.04
 
