@@ -13,49 +13,49 @@ permissions:
   contents: read
 
 jobs:
-  #  deploy-infra:
-  #    runs-on: ubuntu-22.04
-  #    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
-  #    outputs:
-  #      vpc_id: ${{ steps.outputs.outputs.vpc_id }}
-  #      public_subnets: ${{ steps.outputs.outputs.public_subnets }}
-  #      cluster_arn: ${{ steps.outputs.outputs.cluster_arn }}
-  #      execution_role_arn: ${{ steps.outputs.outputs.execution_role_arn }}
-  #      ecs_security_group_id: ${{ steps.outputs.outputs.ecs_security_group_id }}
-  #    steps:
-  #      - uses: actions/checkout@v4
-  #
-  #      - name: Configure AWS credentials via OIDC
-  #        uses: aws-actions/configure-aws-credentials@v2
-  #        with:
-  #          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
-  #          aws-region: ${{ secrets.AWS_REGION }}
-  #          audience: sts.amazonaws.com
-  #
-  #      - name: Terraform Deploy Infra
-  #        run: |
-  #          cd infra/test/aws
-  #          terraform init
-  #          terraform plan
-  #          terraform apply -auto-approve
-  #
-  #      - name: Save Terraform Infra state
-  #        if: always()
-  #        uses: actions/upload-artifact@v4
-  #        with:
-  #          name: terraform-infra.tfstate
-  #          path: infra/test/aws/terraform.tfstate
-  #
-  #      - name: Get Terraform Outputs
-  #        id: outputs
-  #        run: |
-  #          cd infra/test/aws
-  #          echo "vpc_id=$(terraform output -raw vpc_id)" >> $GITHUB_OUTPUT
-  #          echo "public_subnets=$(terraform output -json public_subnets)" >> $GITHUB_OUTPUT
-  #          echo "cluster_arn=$(terraform output -raw cluster_arn)" >> $GITHUB_OUTPUT
-  #          echo "execution_role_arn=$(terraform output -raw execution_role_arn)" >> $GITHUB_OUTPUT
-  #          # Assuming the output returns a list, and we need the first one.
-  #          echo "ecs_security_group_id=$(terraform output -json security_group_ids | jq -r '''.[0]''')" >> $GITHUB_OUTPUT
+#  deploy-infra:
+#    runs-on: ubuntu-22.04
+#    if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
+#    outputs:
+#      vpc_id: ${{ steps.outputs.outputs.vpc_id }}
+#      public_subnets: ${{ steps.outputs.outputs.public_subnets }}
+#      cluster_arn: ${{ steps.outputs.outputs.cluster_arn }}
+#      execution_role_arn: ${{ steps.outputs.outputs.execution_role_arn }}
+#      ecs_security_group_id: ${{ steps.outputs.outputs.ecs_security_group_id }}
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Configure AWS credentials via OIDC
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+#          audience: sts.amazonaws.com
+#
+#      - name: Terraform Deploy Infra
+#        run: |
+#          cd infra/test/aws
+#          terraform init
+#          terraform plan
+#          terraform apply -auto-approve
+#
+#      - name: Save Terraform Infra state
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: terraform-infra.tfstate
+#          path: infra/test/aws/terraform.tfstate
+#
+#      - name: Get Terraform Outputs
+#        id: outputs
+#        run: |
+#          cd infra/test/aws
+#          echo "vpc_id=$(terraform output -raw vpc_id)" >> $GITHUB_OUTPUT
+#          echo "public_subnets=$(terraform output -json public_subnets)" >> $GITHUB_OUTPUT
+#          echo "cluster_arn=$(terraform output -raw cluster_arn)" >> $GITHUB_OUTPUT
+#          echo "execution_role_arn=$(terraform output -raw execution_role_arn)" >> $GITHUB_OUTPUT
+#          # Assuming the output returns a list, and we need the first one.
+#          echo "ecs_security_group_id=$(terraform output -json security_group_ids | jq -r '''.[0]''')" >> $GITHUB_OUTPUT
 
   deploy-app:
     runs-on: ubuntu-22.04
@@ -82,7 +82,6 @@ jobs:
 
       - name: Terraform Deploy App
         run: |
-          apt install terraform -y
           cd deploy/test/aws
           terraform init
           terraform plan
@@ -122,7 +121,7 @@ jobs:
             "${{ needs.deploy-app.outputs.cluster_name }}" \
             "${{ needs.deploy-app.outputs.service_name }}" \
             "${{ secrets.AWS_REGION }}")
-
+          
           echo "PUBLIC_IP=$PUBLIC_IP" >> $GITHUB_ENV
           echo "ECS Task Public IP: $PUBLIC_IP"
 
@@ -157,30 +156,29 @@ jobs:
     if: always()
     needs: run-e2e-test
     steps:
-      - uses: actions/checkout@v5
+    - uses: actions/checkout@v5
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
-          audience: sts.amazonaws.com
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v5
+      with:
+        role-to-assume: ${{ secrets.AWS_GITHUB_ACTION_DEPLOY_ROLE_ARN }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        audience: sts.amazonaws.com
 
-      - name: Download App tfstate
-        if: always()
-        uses: actions/download-artifact@v6
-        with:
-          name: terraform-app.tfstate
-          path: deploy/test/aws
+    - name: Download App tfstate
+      if: always()
+      uses: actions/download-artifact@v6
+      with:
+        name: terraform-app.tfstate
+        path: deploy/test/aws
 
-      - name: Terraform Destroy App
-        if: always()
-        run: |
-          apt install terraform -y
-          cd deploy/test/aws
-          terraform init
-          terraform plan
-          terraform destroy -auto-approve
+    - name: Terraform Destroy App
+      if: always()
+      run: |
+        cd deploy/test/aws
+        terraform init
+        terraform plan
+        terraform destroy -auto-approve
 
 #    - name: Download Infra tfstate
 #      if: always()
