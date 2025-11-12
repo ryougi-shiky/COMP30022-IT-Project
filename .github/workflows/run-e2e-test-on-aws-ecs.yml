@@ -58,7 +58,7 @@ jobs:
   #          echo "ecs_security_group_id=$(terraform output -json security_group_ids | jq -r '''.[0]''')" >> $GITHUB_OUTPUT
 
   deploy-app:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.confirm == 'YES'
     outputs:
       cluster_name: ${{ steps.tf-output.outputs.cluster_name }}
@@ -103,7 +103,7 @@ jobs:
           echo "service_name=$(terraform output -raw ecs_service_name)" >> $GITHUB_OUTPUT
 
   run-e2e-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: [deploy-app]
     steps:
       - uses: actions/checkout@v5
@@ -153,7 +153,7 @@ jobs:
           path: frontend/cypress/screenshots
 
   post-deploy-destroy-resources:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     if: always()
     needs: run-e2e-test
     steps:
