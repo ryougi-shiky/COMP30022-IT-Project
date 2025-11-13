@@ -131,9 +131,12 @@ describe('Profile Page', () => {
     const newAge = '30';
     const newLocation = 'New York';
 
-    // Wait for inputs to stabilize, then interact with them using force to bypass actionability checks
-    cy.get('input.rightbarInfoValue').eq(0).should('exist').clear({ force: true }).type(newAge, { force: true });
-    cy.get('input.rightbarInfoValue').eq(1).should('exist').clear({ force: true }).type(newLocation, { force: true });
+    // Completely break the chain - each operation is independent
+    cy.get('input.rightbarInfoValue').eq(0).should('exist').clear({ force: true });
+    cy.get('input.rightbarInfoValue').eq(0).type(newAge, { force: true });
+
+    cy.get('input.rightbarInfoValue').eq(1).should('exist').clear({ force: true });
+    cy.get('input.rightbarInfoValue').eq(1).type(newLocation, { force: true });
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
@@ -169,9 +172,12 @@ describe('Profile Page', () => {
     // Wait for edit mode
     cy.get('input.rightbarInfoValue').should('have.length', 2);
 
-    // Wait for inputs to stabilize, then interact with them using force to bypass actionability checks
-    cy.get('input.rightbarInfoValue').eq(0).should('exist').clear({ force: true }).type('99', { force: true });
-    cy.get('input.rightbarInfoValue').eq(1).should('exist').clear({ force: true }).type('Test Location', { force: true });
+    // Completely break the chain - each operation is independent
+    cy.get('input.rightbarInfoValue').eq(0).should('exist').clear({ force: true });
+    cy.get('input.rightbarInfoValue').eq(0).type('99', { force: true });
+
+    cy.get('input.rightbarInfoValue').eq(1).should('exist').clear({ force: true });
+    cy.get('input.rightbarInfoValue').eq(1).type('Test Location', { force: true });
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
