@@ -146,7 +146,7 @@ export default function Rightbar({user}) {
             <span className="rightbarInfoKey">Age: </span>
             {
               isEditing
-                ? <input className="rightbarInfoValue" type="number" ref={inputAge} placeholder="Edit your age" />
+                ? <input className="rightbarInfoValue" type="number" ref={inputAge} defaultValue={user.age ?? ''} placeholder="Edit your age" />
                 : <span className="rightbarInfoValue">{user.age}</span>
             }
           </div>
@@ -154,7 +154,7 @@ export default function Rightbar({user}) {
             <span className="rightbarInfoKey">From: </span>
             {
               isEditing
-                ? <input className="rightbarInfoValue" type="text" ref={inputFrom} placeholder="Edit your location" />
+                ? <input className="rightbarInfoValue" type="text" ref={inputFrom} defaultValue={user.from ?? ''} placeholder="Edit your location" />
                 : <span className="rightbarInfoValue">{user.from}</span>
             }
           </div>
