@@ -127,12 +127,26 @@ describe('Profile Page', () => {
 
     // Wait for edit mode to be fully enabled
     cy.get('input.rightbarInfoValue').should('have.length', 2);
+    
+    // Wait for both inputs to be visible and not disabled
+    cy.get('input.rightbarInfoValue').each(($input) => {
+      cy.wrap($input).should('be.visible').and('not.be.disabled');
+    });
 
     const newAge = '30';
     const newLocation = 'New York';
 
-    cy.get('input.rightbarInfoValue').eq(0).should('not.be.disabled').clear().type(newAge);
-    cy.get('input.rightbarInfoValue').eq(1).should('not.be.disabled').clear().type(newLocation);
+    // Clear both inputs first
+    cy.get('input.rightbarInfoValue').eq(0).clear();
+    cy.get('input.rightbarInfoValue').eq(1).clear();
+
+    // Wait for inputs to be empty before typing
+    cy.get('input.rightbarInfoValue').eq(0).should('have.value', '');
+    cy.get('input.rightbarInfoValue').eq(1).should('have.value', '');
+
+    // Type new values
+    cy.get('input.rightbarInfoValue').eq(0).type(newAge);
+    cy.get('input.rightbarInfoValue').eq(1).type(newLocation);
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
@@ -167,12 +181,18 @@ describe('Profile Page', () => {
 
     // Wait for edit mode with proper input fields
     cy.get('input.rightbarInfoValue').should('have.length', 2);
-
-    // For age input: wait until not disabled, then clear and type
-    cy.get('input.rightbarInfoValue').eq(0).should('not.be.disabled').clear().type('99');
     
-    // For location input: wait until not disabled, then clear and type
-    cy.get('input.rightbarInfoValue').eq(1).should('not.be.disabled').clear().type('Test Location');
+    // Wait for both inputs to be visible and not disabled
+    cy.get('input.rightbarInfoValue').each(($input) => {
+      cy.wrap($input).should('be.visible').and('not.be.disabled');
+    });
+
+    // Clear and type new values
+    cy.get('input.rightbarInfoValue').eq(0).clear();
+    cy.get('input.rightbarInfoValue').eq(0).should('have.value', '').type('99');
+    
+    cy.get('input.rightbarInfoValue').eq(1).clear();
+    cy.get('input.rightbarInfoValue').eq(1).should('have.value', '').type('Test Location');
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
