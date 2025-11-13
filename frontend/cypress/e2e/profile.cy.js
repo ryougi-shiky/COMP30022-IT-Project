@@ -132,8 +132,17 @@ describe('Profile Page', () => {
     const newLocation = 'New York';
 
     // For each input, verify it's ready right before interacting with it
-    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type(newAge);
-    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type(newLocation);
+    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled').then(($input) => {
+      // Extra check to ensure element is truly ready
+      expect($input).to.not.have.attr('readonly');
+      expect($input).to.not.have.attr('disabled');
+    }).clear().type(newAge);
+    
+    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled').then(($input) => {
+      // Extra check to ensure element is truly ready
+      expect($input).to.not.have.attr('readonly');
+      expect($input).to.not.have.attr('disabled');
+    }).clear().type(newLocation);
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
@@ -170,8 +179,17 @@ describe('Profile Page', () => {
     cy.get('input.rightbarInfoValue').should('have.length', 2).as('inputs');
 
     // For each input, verify it's ready right before interacting with it
-    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type('99');
-    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type('Test Location');
+    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled').then(($input) => {
+      // Extra check to ensure element is truly ready
+      expect($input).to.not.have.attr('readonly');
+      expect($input).to.not.have.attr('disabled');
+    }).clear().type('99');
+    
+    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled').then(($input) => {
+      // Extra check to ensure element is truly ready
+      expect($input).to.not.have.attr('readonly');
+      expect($input).to.not.have.attr('disabled');
+    }).clear().type('Test Location');
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
