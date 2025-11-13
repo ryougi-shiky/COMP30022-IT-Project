@@ -134,10 +134,12 @@ describe('Profile Page', () => {
     });
 
     const newAge = '30';
-    cy.get('input.rightbarInfoValue').eq(0).clear().type(newAge);
-
     const newLocation = 'New York';
-    cy.get('input.rightbarInfoValue').eq(1).clear().type(newLocation);
+
+    cy.get('input.rightbarInfoValue').eq(0).clear()
+    cy.get('input.rightbarInfoValue').eq(0).type(newAge);
+    cy.get('input.rightbarInfoValue').eq(1).clear()
+    cy.get('input.rightbarInfoValue').eq(1).type(newLocation);
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
