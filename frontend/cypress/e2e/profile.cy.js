@@ -128,16 +128,12 @@ describe('Profile Page', () => {
     // Wait for edit mode to be fully enabled and get stable references
     cy.get('input.rightbarInfoValue').should('have.length', 2).as('inputs');
 
-    // Wait for inputs to be ready, then perform operations
-    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled');
-    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled');
-
     const newAge = '30';
     const newLocation = 'New York';
 
-    // Use the same alias to ensure we're working with stable elements
-    cy.get('@inputs').eq(0).clear().type(newAge);
-    cy.get('@inputs').eq(1).clear().type(newLocation);
+    // For each input, verify it's ready right before interacting with it
+    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type(newAge);
+    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type(newLocation);
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
@@ -173,13 +169,9 @@ describe('Profile Page', () => {
     // Wait for edit mode and get stable references
     cy.get('input.rightbarInfoValue').should('have.length', 2).as('inputs');
 
-    // Wait for inputs to be ready
-    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled');
-    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled');
-
-    // Use the same alias to ensure stability
-    cy.get('@inputs').eq(0).clear().type('99');
-    cy.get('@inputs').eq(1).clear().type('Test Location');
+    // For each input, verify it's ready right before interacting with it
+    cy.get('@inputs').eq(0).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type('99');
+    cy.get('@inputs').eq(1).should('be.visible').and('not.be.disabled').and('not.have.attr', 'readonly').clear().type('Test Location');
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
