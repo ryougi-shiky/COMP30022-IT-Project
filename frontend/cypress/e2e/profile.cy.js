@@ -125,7 +125,10 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Edit').click();
 
+    // Wait for input fields to be enabled and ready
     cy.get('input.rightbarInfoValue').should('have.length', 2);
+    cy.get('input.rightbarInfoValue').eq(0).should('not.be.disabled');
+    cy.get('input.rightbarInfoValue').eq(1).should('not.be.disabled');
 
     const newAge = '30';
     cy.get('input.rightbarInfoValue').eq(0).clear().type(newAge);
@@ -162,10 +165,18 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Edit').click();
 
+    // Wait for input fields to be enabled and ready
+    cy.get('input.rightbarInfoValue').should('have.length', 2);
+    cy.get('input.rightbarInfoValue').eq(0).should('not.be.disabled');
+    cy.get('input.rightbarInfoValue').eq(1).should('not.be.disabled');
+
     cy.get('input.rightbarInfoValue').eq(0).clear().type('99');
     cy.get('input.rightbarInfoValue').eq(1).clear().type('Test Location');
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
+
+    // Wait for the values to revert back to spans
+    cy.get('span.rightbarInfoValue').should('have.length', 2);
 
     // Ensure the UI reverted to the original values
     cy.get('.rightbarInfoValue').eq(0).invoke('text').then((text) => {
