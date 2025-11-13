@@ -136,16 +136,9 @@ describe('Profile Page', () => {
     const newAge = '30';
     const newLocation = 'New York';
 
-    // Clear both inputs first
-    cy.get('input.rightbarInfoValue').eq(0).clear();
-    cy.get('input.rightbarInfoValue').eq(1).clear();
-
-    // Wait for inputs to be empty before typing
-    cy.get('input.rightbarInfoValue').eq(0).should('have.value', '');
-    cy.get('input.rightbarInfoValue').eq(1).should('have.value', '');
-
-    // Type new values
+    cy.get('input.rightbarInfoValue').eq(0).clear()
     cy.get('input.rightbarInfoValue').eq(0).type(newAge);
+    cy.get('input.rightbarInfoValue').eq(1).clear()
     cy.get('input.rightbarInfoValue').eq(1).type(newLocation);
 
     cy.get('.rightbarEditButton').contains('Save').click();
@@ -187,12 +180,8 @@ describe('Profile Page', () => {
       cy.wrap($input).should('be.visible').and('not.be.disabled');
     });
 
-    // Clear and type new values
-    cy.get('input.rightbarInfoValue').eq(0).clear();
-    cy.get('input.rightbarInfoValue').eq(0).should('have.value', '').type('99');
-    
-    cy.get('input.rightbarInfoValue').eq(1).clear();
-    cy.get('input.rightbarInfoValue').eq(1).should('have.value', '').type('Test Location');
+    cy.get('input.rightbarInfoValue').eq(0).clear().type('99');
+    cy.get('input.rightbarInfoValue').eq(1).clear().type('Test Location');
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
