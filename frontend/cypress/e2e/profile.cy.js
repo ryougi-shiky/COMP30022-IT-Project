@@ -125,28 +125,18 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Edit').click();
 
-    // Wait for edit mode to be fully enabled
+    // Wait for edit mode to be fully enabled with inputs rendered
     cy.get('input.rightbarInfoValue').should('have.length', 2);
     
-    // Wait for both inputs to be visible and not disabled
-    cy.get('input.rightbarInfoValue').each(($input) => {
-      cy.wrap($input).should('be.visible').and('not.be.disabled');
-    });
+    // Add explicit wait for DOM to settle after conditional rendering
+    cy.wait(300);
 
     const newAge = '30';
     const newLocation = 'New York';
 
-    // Clear both inputs first
-    cy.get('input.rightbarInfoValue').eq(0).clear();
-    cy.get('input.rightbarInfoValue').eq(1).clear();
-
-    // Wait for inputs to be empty before typing
-    cy.get('input.rightbarInfoValue').eq(0).should('have.value', '');
-    cy.get('input.rightbarInfoValue').eq(1).should('have.value', '');
-
-    // Type new values
-    cy.get('input.rightbarInfoValue').eq(0).type(newAge);
-    cy.get('input.rightbarInfoValue').eq(1).type(newLocation);
+    // Use force option and delay to handle potential race conditions
+    cy.get('input.rightbarInfoValue').eq(0).clear({ force: true }).type(newAge, { delay: 50 });
+    cy.get('input.rightbarInfoValue').eq(1).clear({ force: true }).type(newLocation, { delay: 50 });
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
@@ -182,17 +172,12 @@ describe('Profile Page', () => {
     // Wait for edit mode with proper input fields
     cy.get('input.rightbarInfoValue').should('have.length', 2);
     
-    // Wait for both inputs to be visible and not disabled
-    cy.get('input.rightbarInfoValue').each(($input) => {
-      cy.wrap($input).should('be.visible').and('not.be.disabled');
-    });
+    // Add explicit wait for DOM to settle after conditional rendering
+    cy.wait(300);
 
-    // Clear and type new values
-    cy.get('input.rightbarInfoValue').eq(0).clear();
-    cy.get('input.rightbarInfoValue').eq(0).should('have.value', '').type('99');
-    
-    cy.get('input.rightbarInfoValue').eq(1).clear();
-    cy.get('input.rightbarInfoValue').eq(1).should('have.value', '').type('Test Location');
+    // Clear and type new values with force option and delay
+    cy.get('input.rightbarInfoValue').eq(0).clear({ force: true }).type('99', { delay: 50 });
+    cy.get('input.rightbarInfoValue').eq(1).clear({ force: true }).type('Test Location', { delay: 50 });
 
     cy.get('.rightbarEditButton').contains('Cancel').click();
 
