@@ -125,10 +125,13 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Edit').click();
 
-    // Wait for input fields to be enabled and ready
+    // Wait for edit mode to be fully enabled
     cy.get('input.rightbarInfoValue').should('have.length', 2);
-    cy.get('input.rightbarInfoValue').eq(0).should('not.be.disabled');
-    cy.get('input.rightbarInfoValue').eq(1).should('not.be.disabled');
+    
+    // Wait for both inputs to be visible and not disabled
+    cy.get('input.rightbarInfoValue').each(($input) => {
+      cy.wrap($input).should('be.visible').and('not.be.disabled');
+    });
 
     const newAge = '30';
     cy.get('input.rightbarInfoValue').eq(0).clear().type(newAge);
@@ -138,6 +141,8 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Save').click();
 
+    // Wait for save to complete and return to display mode
+    cy.get('span.rightbarInfoValue').should('have.length', 2);
     cy.get('.rightbarInfoValue').eq(0).should('contain', newAge);
     cy.get('.rightbarInfoValue').eq(1).should('contain', newLocation);
   });
@@ -165,10 +170,13 @@ describe('Profile Page', () => {
 
     cy.get('.rightbarEditButton').contains('Edit').click();
 
-    // Wait for input fields to be enabled and ready
+    // Wait for edit mode with proper input fields
     cy.get('input.rightbarInfoValue').should('have.length', 2);
-    cy.get('input.rightbarInfoValue').eq(0).should('not.be.disabled');
-    cy.get('input.rightbarInfoValue').eq(1).should('not.be.disabled');
+    
+    // Wait for both inputs to be visible and not disabled
+    cy.get('input.rightbarInfoValue').each(($input) => {
+      cy.wrap($input).should('be.visible').and('not.be.disabled');
+    });
 
     cy.get('input.rightbarInfoValue').eq(0).clear().type('99');
     cy.get('input.rightbarInfoValue').eq(1).clear().type('Test Location');
