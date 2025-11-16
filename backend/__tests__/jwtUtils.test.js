@@ -46,7 +46,7 @@ describe('JWT Utils', () => {
       generateAccessToken(testUserId, testEmail);
       
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Generated access token for user:')
+        expect.stringContaining('Generating access token for user:')
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
         expect.stringContaining(testUserId)
