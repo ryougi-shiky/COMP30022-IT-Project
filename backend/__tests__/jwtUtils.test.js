@@ -15,6 +15,19 @@ process.env.REFRESH_TOKEN_EXPIRY = '7d';
 describe('JWT Utils', () => {
   const testUserId = '507f1f77bcf86cd799439011';
   const testEmail = 'test@example.com';
+  
+  let consoleLogSpy;
+  let consoleErrorSpy;
+  
+  beforeEach(() => {
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  });
+  
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
 
   describe('generateAccessToken', () => {
     it('should generate a valid access token', () => {
@@ -27,6 +40,17 @@ describe('JWT Utils', () => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       expect(decoded.userId).toBe(testUserId);
       expect(decoded.email).toBe(testEmail);
+    });
+    
+    it('should log token generation', () => {
+      generateAccessToken(testUserId, testEmail);
+      
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Generated access token for user:')
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining(testUserId)
+      );
     });
 
     it('should generate token with correct expiry', () => {
@@ -59,6 +83,17 @@ describe('JWT Utils', () => {
       // Verify the token can be decoded
       const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
       expect(decoded.userId).toBe(testUserId);
+    });
+    
+    it('should log token generation', () => {
+      generateRefreshToken(testUserId);
+      
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Generated refresh token for user:')
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining(testUserId)
+      );
     });
 
     it('should generate token with correct expiry (7 days)', () => {
