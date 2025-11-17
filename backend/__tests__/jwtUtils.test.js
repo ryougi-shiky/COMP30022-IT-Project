@@ -46,10 +46,10 @@ describe('JWT Utils', () => {
       generateAccessToken(testUserId, testEmail);
       
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[JWT] Generating access token for user:')
+        expect.stringMatching(new RegExp(`\\[JWT\\] Generating access token for user: ${testUserId}, email: ${testEmail}`))
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining(testUserId)
+        expect.stringMatching(new RegExp(`\\[JWT\\] Access token generated successfully for user: ${testUserId}`))
       );
     });
 
@@ -89,7 +89,7 @@ describe('JWT Utils', () => {
       generateRefreshToken(testUserId);
       
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Generated refresh token for user:')
+        expect.stringContaining('Refresh token generated successfully for user:')
       );
       expect(consoleLogSpy).toHaveBeenCalledWith(
         expect.stringContaining(testUserId)
