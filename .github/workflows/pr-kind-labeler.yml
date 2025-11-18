@@ -15,8 +15,10 @@ jobs:
 
       - name: Extract kind from PR body and add label
         id: extract_kind
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          ./auto/extract-kind-labels "${{ github.event.pull_request.body }}"
+          ./auto/extract-kind-labels "$PR_BODY"
 
       - name: Add kind labels to PR
         uses: actions-ecosystem/action-add-labels@v1
