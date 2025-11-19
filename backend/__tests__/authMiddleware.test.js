@@ -49,14 +49,14 @@ describe('Authentication Middleware', () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should return 403 if authorization header does not contain Bearer token', () => {
+    it('should return 401 if authorization header does not contain Bearer scheme', () => {
       req.headers['authorization'] = 'Basic sometoken';
       
       authenticateToken(req, res, next);
       
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Invalid or expired token"
+        message: "Access token required"
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -162,6 +162,19 @@ describe('Authentication Middleware', () => {
       authenticateToken(req, res, next);
       
       expect(req.user).toBeUndefined();
+    });
+
+    it('should return 401 if authorization header is just a token without Bearer', () => {
+      const token = generateAccessToken(testUserId, testEmail);
+      req.headers['authorization'] = token; // Missing "Bearer " prefix
+      
+      authenticateToken(req, res, next);
+      
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Access token required"
+      });
+      expect(next).not.toHaveBeenCalled();
     });
   });
 
