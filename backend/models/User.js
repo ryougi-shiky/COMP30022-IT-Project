@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
-    maxlength: 100, // Increased to accommodate hashed passwords
+    maxlength: 60, // Bcrypt hash length is exactly 60 characters
   },
   profilePicture: {
     type: Buffer,

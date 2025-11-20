@@ -100,7 +100,7 @@ describe('User Model', () => {
       const user = new User({
         username: 'testuser',
         email: 'test@example.com',
-        password: 'a'.repeat(101) // More than max: 100 characters
+        password: 'a'.repeat(61) // More than maxlength: 60 characters (bcrypt hash length)
       });
       
       const validationError = user.validateSync();
@@ -108,11 +108,11 @@ describe('User Model', () => {
       expect(validationError.errors.password).toBeDefined();
     });
 
-    it('should accept password with exactly 100 characters', () => {
+    it('should accept password with exactly 60 characters', () => {
       const user = new User({
         username: 'testuser',
         email: 'test@example.com',
-        password: 'a'.repeat(100)
+        password: 'a'.repeat(60)
       });
       
       const validationError = user.validateSync();
