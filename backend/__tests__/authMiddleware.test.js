@@ -32,7 +32,7 @@ describe('Authentication Middleware', () => {
       
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Access token required"
+        message: "Authorization header is missing. Please provide a valid Bearer token."
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -44,7 +44,7 @@ describe('Authentication Middleware', () => {
       
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Access token required"
+        message: "Authorization header is missing. Please provide a valid Bearer token."
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -56,7 +56,7 @@ describe('Authentication Middleware', () => {
       
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Access token required"
+        message: "Authorization header format must be: Bearer <token>"
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -68,7 +68,7 @@ describe('Authentication Middleware', () => {
       
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Invalid or expired token"
+        message: "Access token is invalid or has expired. Please obtain a new token."
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -80,7 +80,7 @@ describe('Authentication Middleware', () => {
       
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Invalid or expired token"
+        message: "Access token is invalid or has expired. Please obtain a new token."
       });
       expect(next).not.toHaveBeenCalled();
     });
@@ -149,7 +149,7 @@ describe('Authentication Middleware', () => {
         
         expect(res.status).toHaveBeenCalledWith(403);
         expect(res.json).toHaveBeenCalledWith({
-          message: "Invalid or expired token"
+          message: "Access token is invalid or has expired. Please obtain a new token."
         });
         expect(next).not.toHaveBeenCalled();
         done();
@@ -172,7 +172,7 @@ describe('Authentication Middleware', () => {
       
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
-        message: "Access token required"
+        message: "Authorization header format must be: Bearer <token>"
       });
       expect(next).not.toHaveBeenCalled();
     });

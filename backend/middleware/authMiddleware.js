@@ -5,15 +5,15 @@ const authenticateToken = (req, res, next) => {
   
   if (!authHeader) {
     return res.status(401).json({ 
-      message: "Access token required" 
+      message: "Authorization header is missing. Please provide a valid Bearer token." 
     });
   }
 
   // More robust token extraction: validate Bearer scheme and extract token
-  const parts = authHeader.split(' ');
+  const parts = authHeader.trim().split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') {
     return res.status(401).json({ 
-      message: "Access token required" 
+      message: "Authorization header format must be: Bearer <token>" 
     });
   }
 
@@ -22,7 +22,7 @@ const authenticateToken = (req, res, next) => {
   
   if (!decoded) {
     return res.status(403).json({ 
-      message: "Invalid or expired token" 
+      message: "Access token is invalid or has expired. Please obtain a new token." 
     });
   }
 
