@@ -73,13 +73,13 @@ describe('User Model', () => {
 
     it('should enforce maximum username length', () => {
       const user = new User({
-        username: 'a'.repeat(21), // Too long (max is 20)
+        username: 'a'.repeat(31), // Too long (max is 30)
         email: 'test@example.com',
         password: 'password123'
       });
       
       const validationError = user.validateSync();
-      // A username of 21 characters exceeds max: 20
+      // A username of 31 characters exceeds maxlength: 30
       expect(validationError).toBeDefined();
       expect(validationError.errors.username).toBeDefined();
     });
