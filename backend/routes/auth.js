@@ -5,6 +5,16 @@ const bcrypt = require('bcrypt');
 // register
 router.post('/register', async (req, res) => {
   try {
+    // Validate input
+    if (!req.body.username || !req.body.email || !req.body.password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Validate password length (plain text, before hashing)
+    if (req.body.password.length < 8) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+
     // Check if username exists
     const existingUser = await User.findOne({ username: req.body.username });
 
