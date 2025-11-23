@@ -28,6 +28,24 @@ const registerLimiter = rateLimit({
   }
 });
 
+// Rate limiter for token refresh
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 refresh attempts per window
+  message: { 
+    message: "Too many token refresh requests. Please try again later." 
+  }
+});
+
+// Rate limiter for logout operations
+const logoutLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 logout attempts per window
+  message: { 
+    message: "Too many logout requests. Please try again later." 
+  }
+});
+
 // Register
 router.post('/register', registerLimiter, async (req, res) => {
   try {
@@ -178,7 +196,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 });
 
 // Refresh token
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', refreshLimiter, async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -226,7 +244,7 @@ router.post('/refresh', async (req, res) => {
 });
 
 // Logout
-router.post('/logout', async (req, res) => {
+router.post('/logout', logoutLimiter, async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -259,7 +277,7 @@ router.post('/logout', async (req, res) => {
 });
 
 // Logout from all devices
-router.post('/logout-all', async (req, res) => {
+router.post('/logout-all', logoutLimiter, async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
