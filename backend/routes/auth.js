@@ -106,7 +106,7 @@ router.post('/register', registerLimiter, async (req, res) => {
     await user.save();
 
     // Return response without password
-    res.status(200).json({
+    res.status(201).json({
       message: "Registration successful",
       user: user.toJSON(),
       accessToken,

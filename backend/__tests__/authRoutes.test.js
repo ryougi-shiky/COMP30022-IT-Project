@@ -79,7 +79,7 @@ describe('Auth Routes', () => {
         .post('/auth/register')
         .send(validRegisterData);
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('message', 'Registration successful');
       expect(response.body).toHaveProperty('user');
       expect(response.body).toHaveProperty('accessToken');
