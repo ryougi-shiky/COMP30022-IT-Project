@@ -94,15 +94,16 @@ router.post('/register', registerLimiter, async (req, res) => {
       password: hashedPwd,
     });
 
-    // Generate tokens
-    const accessToken = generateAccessToken(newUser._id, newUser.email);
-    const refreshToken = generateRefreshToken(newUser._id);
-
-    // Store refresh token before saving
-    newUser.refreshTokens = [refreshToken];
-
-    // Save to database
+    // Save to database first
     const user = await newUser.save();
+    
+    // Generate tokens with saved user's ID
+    const accessToken = generateAccessToken(user._id, user.email);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Store refresh token
+    user.refreshTokens = [refreshToken];
+    await user.save();
 
     // Return response without password
     res.status(201).json({
