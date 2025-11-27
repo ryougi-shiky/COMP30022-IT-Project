@@ -8,10 +8,13 @@ const {
   verifyRefreshToken 
 } = require('../utils/jwtUtils');
 
+// Check if running in development/test mode
+const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+
 // Rate limiter for login attempts
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window
+  max: isDevelopment ? 100 : 5, // Higher limit in development for E2E tests
   message: { 
     message: "Too many login attempts. Please try again later." 
   },
@@ -22,7 +25,7 @@ const loginLimiter = rateLimit({
 // Rate limiter for registration
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 registrations per hour per IP
+  max: isDevelopment ? 100 : 3, // Higher limit in development for E2E tests
   message: { 
     message: "Too many accounts created. Please try again later." 
   }
