@@ -80,11 +80,10 @@ describe('Auth Routes', () => {
         .send(validRegisterData);
 
       expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty('message', 'Registration successful');
-      expect(response.body).toHaveProperty('user');
+      // User properties are now at top level for backward compatibility
+      expect(response.body).toHaveProperty('username', validRegisterData.username);
       expect(response.body).toHaveProperty('accessToken');
       expect(response.body).toHaveProperty('refreshToken');
-      expect(response.body.user.username).toBe(validRegisterData.username);
     });
 
     it('should fail if username is missing', async () => {
@@ -193,8 +192,8 @@ describe('Auth Routes', () => {
         .send(validLoginData);
 
       expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('message', 'Login successful');
-      expect(response.body).toHaveProperty('user');
+      // User properties are now at top level for backward compatibility
+      expect(response.body).toHaveProperty('email', validLoginData.email);
       expect(response.body).toHaveProperty('accessToken');
       expect(response.body).toHaveProperty('refreshToken');
     });

@@ -108,10 +108,10 @@ router.post('/register', registerLimiter, async (req, res) => {
     user.refreshTokens = [refreshToken];
     await user.save();
 
-    // Return response without password
+    // Return response - spread user properties at top level for backward compatibility
+    // while also including tokens for JWT-based authentication
     res.status(201).json({
-      message: "Registration successful",
-      user: user.toJSON(),
+      ...user.toJSON(),
       accessToken,
       refreshToken
     });
@@ -183,10 +183,10 @@ router.post('/login', loginLimiter, async (req, res) => {
     
     await user.save();
 
-    // Return response
+    // Return response - spread user properties at top level for backward compatibility
+    // while also including tokens for JWT-based authentication
     res.status(200).json({
-      message: "Login successful",
-      user: user.toJSON(),
+      ...user.toJSON(),
       accessToken,
       refreshToken
     });
