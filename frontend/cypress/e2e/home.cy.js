@@ -170,7 +170,8 @@ describe('Home Page', () => {
 
     cy.get('.shareButton').click();
 
-    cy.get('.post').first().find('.postText').should('contain', 'Test post from Cypress');
+    // Wait for the post to be created and appear in the feed
+    cy.get('.post').first().find('.postText', { timeout: 10000 }).should('contain', 'Test post from Cypress');
   });
 
   it('should test the functionality of post interactions', () => {
