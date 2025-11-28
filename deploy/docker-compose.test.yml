@@ -11,6 +11,10 @@ services:
       NODE_ENV: "development"
       PORT: "17000"
       CORS_WHITELIST: "http://localhost:3000"
+      JWT_SECRET: "test-jwt-secret-for-ci-testing-min-32-chars"
+      REFRESH_TOKEN_SECRET: "test-refresh-token-secret-for-ci-testing-min-32-chars"
+      JWT_EXPIRY: "15m"
+      REFRESH_TOKEN_EXPIRY: "7d"
 
   mongodb:
     image: ${DOCKER_HUB_USERNAME}/forum-mongodb:${VERSION}

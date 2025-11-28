@@ -13,6 +13,10 @@ services:
       NODE_ENV: "development"
       PORT: "17000"
       CORS_WHITELIST: "http://localhost:3000"
+      JWT_SECRET: "local-dev-jwt-secret-for-testing-min-32-chars"
+      REFRESH_TOKEN_SECRET: "local-dev-refresh-token-secret-for-testing-min-32-chars"
+      JWT_EXPIRY: "15m"
+      REFRESH_TOKEN_EXPIRY: "7d"
 
   mongodb:
     build:

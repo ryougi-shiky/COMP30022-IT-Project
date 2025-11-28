@@ -29,7 +29,7 @@ describe('Register Flow', () => {
 
     cy.get('.registerButton').click();
 
-    cy.wait('@registerRequest').its('response.statusCode').should('eq', 200);
+    cy.wait('@registerRequest').its('response.statusCode').should('eq', 201);
 
     cy.url().should('eq', FRONTEND_URL_LOGIN);
 

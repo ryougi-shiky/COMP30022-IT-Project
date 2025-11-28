@@ -166,10 +166,17 @@ describe('Home Page', () => {
   });
 
   it('should test the functionality of the Share component', () => {
+    // Intercept the post creation API call
+    cy.intercept('POST', '**/users/post/create').as('createPost');
+
     cy.get('.shareInput').type('Test post from Cypress');
 
     cy.get('.shareButton').click();
 
+    // Wait for the API call to complete
+    cy.wait('@createPost').its('response.statusCode').should('be.oneOf', [200, 201]);
+
+    // Now check that the post appears in the feed
     cy.get('.post').first().find('.postText').should('contain', 'Test post from Cypress');
   });
 
