@@ -35,7 +35,7 @@ const generateAccessToken = (userId, email) => {
  * @returns {string|null} JWT refresh token or null if userId is invalid
  */
 const generateRefreshToken = (userId) => {
-  // Validate required parameter
+  // Validate required parameter - falsy values (null, undefined, empty string) are rejected
   if (!userId) {
     return null;
   }
