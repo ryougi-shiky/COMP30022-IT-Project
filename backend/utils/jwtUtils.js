@@ -1,19 +1,37 @@
 const jwt = require('jsonwebtoken');
 
 /**
+ * Validates if a value is a non-empty string
+ * @param {*} value - Value to validate
+ * @returns {boolean} True if value is a non-empty string
+ */
+const isNonEmptyString = (value) => {
+  return typeof value === 'string' && value.length > 0;
+};
+
+/**
+ * Validates if a token input is valid for verification
+ * @param {*} token - Token to validate
+ * @returns {boolean} True if token is valid for verification
+ */
+const isValidTokenInput = (token) => {
+  return token && typeof token === 'string' && token.length > 0;
+};
+
+/**
  * Generates a short-lived access token for authenticated requests
  * @param {string} userId - The user's unique identifier
  * @param {string} email - The user's email address
  * @returns {string|null} JWT access token or null if parameters are invalid
  */
 const generateAccessToken = (userId, email) => {
-  // Validate required parameters
-  if (!userId || !email) {
+  // Validate required parameters - userId can be string or ObjectId, email must be string
+  if (!userId || !email || typeof email !== 'string') {
     return null;
   }
 
   const token = jwt.sign(
-    { userId: String(userId), email: String(email) },
+    { userId: String(userId), email },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRY || '15m' }
   );
@@ -46,7 +64,7 @@ const generateRefreshToken = (userId) => {
  */
 const verifyAccessToken = (token) => {
   // Validate token parameter
-  if (!token || typeof token !== 'string') {
+  if (!isValidTokenInput(token)) {
     return null;
   }
 
@@ -65,7 +83,7 @@ const verifyAccessToken = (token) => {
  */
 const verifyRefreshToken = (token) => {
   // Validate token parameter
-  if (!token || typeof token !== 'string') {
+  if (!isValidTokenInput(token)) {
     return null;
   }
 

@@ -11,8 +11,8 @@ const {
 // Check if running in development/test mode
 const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
-// Email validation regex (RFC 5322 compliant basic pattern)
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Email validation regex - validates proper email format with domain
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 /**
  * Validates email format
@@ -23,7 +23,12 @@ const isValidEmail = (email) => {
   if (!email || typeof email !== 'string') {
     return false;
   }
-  return EMAIL_REGEX.test(email.trim());
+  const trimmedEmail = email.trim();
+  // Also check for consecutive dots which are invalid
+  if (trimmedEmail.includes('..')) {
+    return false;
+  }
+  return EMAIL_REGEX.test(trimmedEmail);
 };
 
 // Rate limiter for login attempts

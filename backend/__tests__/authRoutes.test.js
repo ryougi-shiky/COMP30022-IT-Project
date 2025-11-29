@@ -140,6 +140,15 @@ describe('Auth Routes', () => {
       expect(response.body).toHaveProperty('message', 'Please provide a valid email address');
     });
 
+    it('should fail if email has consecutive dots', async () => {
+      const response = await request(app)
+        .post('/auth/register')
+        .send({ username: 'testuser', email: 'test..user@example.com', password: 'password123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Please provide a valid email address');
+    });
+
     it('should fail if email is missing domain', async () => {
       const response = await request(app)
         .post('/auth/register')
