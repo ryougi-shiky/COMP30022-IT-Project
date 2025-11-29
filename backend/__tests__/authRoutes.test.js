@@ -122,6 +122,33 @@ describe('Auth Routes', () => {
       expect(response.body).toHaveProperty('message', 'Password must be at least 8 characters long');
     });
 
+    it('should fail if email format is invalid', async () => {
+      const response = await request(app)
+        .post('/auth/register')
+        .send({ username: 'testuser', email: 'invalid-email', password: 'password123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Please provide a valid email address');
+    });
+
+    it('should fail if email is missing @ symbol', async () => {
+      const response = await request(app)
+        .post('/auth/register')
+        .send({ username: 'testuser', email: 'testexample.com', password: 'password123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Please provide a valid email address');
+    });
+
+    it('should fail if email is missing domain', async () => {
+      const response = await request(app)
+        .post('/auth/register')
+        .send({ username: 'testuser', email: 'test@', password: 'password123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Please provide a valid email address');
+    });
+
     it('should fail if username already exists', async () => {
       User.findOne.mockImplementation((query) => {
         if (query.username) {
@@ -214,6 +241,15 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('message', 'Email and password are required');
+    });
+
+    it('should fail if email format is invalid', async () => {
+      const response = await request(app)
+        .post('/auth/login')
+        .send({ email: 'invalid-email', password: 'password123' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('message', 'Please provide a valid email address');
     });
 
     it('should fail if user does not exist', async () => {
