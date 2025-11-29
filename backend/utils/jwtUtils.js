@@ -1,15 +1,6 @@
 const jwt = require('jsonwebtoken');
 
 /**
- * Validates if a value is a non-empty string
- * @param {*} value - Value to validate
- * @returns {boolean} True if value is a non-empty string
- */
-const isNonEmptyString = (value) => {
-  return typeof value === 'string' && value.length > 0;
-};
-
-/**
  * Validates if a token input is valid for verification
  * @param {*} token - Token to validate
  * @returns {boolean} True if token is valid for verification
