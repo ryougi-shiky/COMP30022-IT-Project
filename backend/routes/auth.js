@@ -11,6 +11,26 @@ const {
 // Check if running in development/test mode
 const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
+// Email validation regex - validates proper email format with domain
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+/**
+ * Validates email format
+ * @param {string} email - Email to validate
+ * @returns {boolean} True if email format is valid
+ */
+const isValidEmail = (email) => {
+  if (!email || typeof email !== 'string') {
+    return false;
+  }
+  const trimmedEmail = email.trim();
+  // Also check for consecutive dots which are invalid
+  if (trimmedEmail.includes('..')) {
+    return false;
+  }
+  return EMAIL_REGEX.test(trimmedEmail);
+};
+
 // Rate limiter for login attempts
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -58,6 +78,13 @@ router.post('/register', registerLimiter, async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({ 
         message: "All fields are required" 
+      });
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ 
+        message: "Please provide a valid email address" 
       });
     }
 
@@ -132,6 +159,13 @@ router.post('/login', loginLimiter, async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ 
         message: "Email and password are required" 
+      });
+    }
+
+    // Validate email format
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ 
+        message: "Please provide a valid email address" 
       });
     }
 

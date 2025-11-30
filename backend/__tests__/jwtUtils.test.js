@@ -191,4 +191,113 @@ describe('JWT Utils', () => {
       expect(accessToken).not.toBe(refreshToken);
     });
   });
+
+  describe('Input validation', () => {
+    describe('generateAccessToken input validation', () => {
+      it('should return null if userId is missing', () => {
+        const token = generateAccessToken(null, testEmail);
+        expect(token).toBeNull();
+      });
+
+      it('should return null if email is missing', () => {
+        const token = generateAccessToken(testUserId, null);
+        expect(token).toBeNull();
+      });
+
+      it('should return null if both parameters are missing', () => {
+        const token = generateAccessToken(null, null);
+        expect(token).toBeNull();
+      });
+
+      it('should return null if userId is undefined', () => {
+        const token = generateAccessToken(undefined, testEmail);
+        expect(token).toBeNull();
+      });
+
+      it('should return null if email is empty string', () => {
+        const token = generateAccessToken(testUserId, '');
+        expect(token).toBeNull();
+      });
+
+      it('should convert userId to string', () => {
+        const numericId = 12345;
+        const token = generateAccessToken(numericId, testEmail);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        expect(decoded.userId).toBe('12345');
+      });
+    });
+
+    describe('generateRefreshToken input validation', () => {
+      it('should return null if userId is missing', () => {
+        const token = generateRefreshToken(null);
+        expect(token).toBeNull();
+      });
+
+      it('should return null if userId is undefined', () => {
+        const token = generateRefreshToken(undefined);
+        expect(token).toBeNull();
+      });
+
+      it('should return null if userId is empty string', () => {
+        const token = generateRefreshToken('');
+        expect(token).toBeNull();
+      });
+
+      it('should convert userId to string', () => {
+        const numericId = 12345;
+        const token = generateRefreshToken(numericId);
+        const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        expect(decoded.userId).toBe('12345');
+      });
+    });
+
+    describe('verifyAccessToken input validation', () => {
+      it('should return null if token is null', () => {
+        const decoded = verifyAccessToken(null);
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is undefined', () => {
+        const decoded = verifyAccessToken(undefined);
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is not a string', () => {
+        const decoded = verifyAccessToken(12345);
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is empty string', () => {
+        const decoded = verifyAccessToken('');
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is an object', () => {
+        const decoded = verifyAccessToken({ token: 'value' });
+        expect(decoded).toBeNull();
+      });
+    });
+
+    describe('verifyRefreshToken input validation', () => {
+      it('should return null if token is null', () => {
+        const decoded = verifyRefreshToken(null);
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is undefined', () => {
+        const decoded = verifyRefreshToken(undefined);
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is not a string', () => {
+        const decoded = verifyRefreshToken(12345);
+        expect(decoded).toBeNull();
+      });
+
+      it('should return null if token is empty string', () => {
+        const decoded = verifyRefreshToken('');
+        expect(decoded).toBeNull();
+      });
+    });
+  });
 });
