@@ -25,11 +25,20 @@ TEST_FILES=(
     "profile.cy.js"
 )
 
+# Higher timeout values for remote deployments (AWS ECS)
+# These account for network latency and cold starts
+CYPRESS_DEFAULT_COMMAND_TIMEOUT=15000
+CYPRESS_RESPONSE_TIMEOUT=60000
+CYPRESS_RETRIES=2
+
 for test_file in "${TEST_FILES[@]}"; do
     echo "Running test: $test_file"
     docker run --rm --name cypress-e2e --network=host \
         -v "$(pwd)/cypress/screenshots:/app/cypress/screenshots" \
         -v "$(pwd)/cypress/fixtures:/app/cypress/fixtures" \
         -e CYPRESS_BASE_URL=${APP_URL} \
+        -e CYPRESS_DEFAULT_COMMAND_TIMEOUT=${CYPRESS_DEFAULT_COMMAND_TIMEOUT} \
+        -e CYPRESS_RESPONSE_TIMEOUT=${CYPRESS_RESPONSE_TIMEOUT} \
+        -e CYPRESS_RETRIES=${CYPRESS_RETRIES} \
         frontend-dev npx cypress run --spec "cypress/e2e/$test_file"
 done
