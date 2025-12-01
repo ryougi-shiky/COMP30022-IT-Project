@@ -2,33 +2,30 @@ const { defineConfig } = require("cypress");
 const fs = require("fs");
 const path = require("path");
 
+// Helper function to safely parse environment variable as integer with fallback
+const parseEnvInt = (envVar, defaultValue) => {
+  if (!envVar) return defaultValue;
+  const parsed = parseInt(envVar, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
+};
+
 module.exports = defineConfig({
   // Default timeout for most commands, can be overridden by env var
-  defaultCommandTimeout: process.env.CYPRESS_DEFAULT_COMMAND_TIMEOUT
-    ? parseInt(process.env.CYPRESS_DEFAULT_COMMAND_TIMEOUT)
-    : 10000,
+  defaultCommandTimeout: parseEnvInt(process.env.CYPRESS_DEFAULT_COMMAND_TIMEOUT, 10000),
 
   // Timeout for waiting for a page to load, can be overridden by env var
-  pageLoadTimeout: process.env.CYPRESS_PAGE_LOAD_TIMEOUT
-    ? parseInt(process.env.CYPRESS_PAGE_LOAD_TIMEOUT)
-    : 120000,
+  pageLoadTimeout: parseEnvInt(process.env.CYPRESS_PAGE_LOAD_TIMEOUT, 120000),
 
   // Timeout for cy.request(), cy.wait(), cy.fixture(), etc., can be overridden by env var
-  responseTimeout: process.env.CYPRESS_RESPONSE_TIMEOUT
-    ? parseInt(process.env.CYPRESS_RESPONSE_TIMEOUT)
-    : 30000,
+  responseTimeout: parseEnvInt(process.env.CYPRESS_RESPONSE_TIMEOUT, 30000),
 
   // Timeout for cy.task(), can be overridden by env var
-  taskTimeout: process.env.CYPRESS_TASK_TIMEOUT
-    ? parseInt(process.env.CYPRESS_TASK_TIMEOUT)
-    : 60000,
+  taskTimeout: parseEnvInt(process.env.CYPRESS_TASK_TIMEOUT, 60000),
 
   // Retry failed tests automatically - helps with flaky tests in CI
   retries: {
     // Retry failed tests in run mode (CI)
-    runMode: process.env.CYPRESS_RETRIES
-      ? parseInt(process.env.CYPRESS_RETRIES)
-      : 2,
+    runMode: parseEnvInt(process.env.CYPRESS_RETRIES, 2),
     // No retries in interactive (open) mode
     openMode: 0,
   },
