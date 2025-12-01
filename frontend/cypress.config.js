@@ -2,7 +2,12 @@ const { defineConfig } = require("cypress");
 const fs = require("fs");
 const path = require("path");
 
-// Helper function to safely parse environment variable as integer with fallback
+/**
+ * Safely parse an environment variable as an integer with a fallback default value.
+ * @param {string|undefined} envVar - The environment variable value to parse
+ * @param {number} defaultValue - The default value to use if parsing fails or envVar is falsy
+ * @returns {number} The parsed integer or the default value
+ */
 const parseEnvInt = (envVar, defaultValue) => {
   if (!envVar) return defaultValue;
   const parsed = parseInt(envVar, 10);
