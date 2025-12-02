@@ -135,33 +135,9 @@ jobs:
       - name: Test ECS connectivity
         run: |
           echo "Testing ECS Public IP: ${{ env.PUBLIC_IP }}"
-          # Wait for nginx to respond
+          # Wait a bit more for the service to be fully ready
           sleep 30
           curl -I "http://${{ env.PUBLIC_IP }}" || exit 1
-
-      - name: Wait for database to be ready
-        run: |
-          echo "Waiting for database to be ready for write operations..."
-          MAX_RETRIES=30
-          RETRY_INTERVAL=10
-          
-          for i in $(seq 1 $MAX_RETRIES); do
-            echo "Attempt $i of $MAX_RETRIES..."
-            
-            # Check if the database readiness endpoint returns success
-            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${{ env.PUBLIC_IP }}/healthcheck/db-ready" || echo "000")
-            
-            if [ "$HTTP_STATUS" = "200" ]; then
-              echo "✅ Database is ready for write operations!"
-              exit 0
-            fi
-            
-            echo "Database not ready yet (HTTP $HTTP_STATUS). Waiting ${RETRY_INTERVAL}s..."
-            sleep $RETRY_INTERVAL
-          done
-          
-          echo "❌ Database did not become ready within timeout"
-          exit 1
 
       - name: Run Cypress E2E Test on ECS
         run: |

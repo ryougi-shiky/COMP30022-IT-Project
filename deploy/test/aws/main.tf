@@ -52,7 +52,12 @@ locals {
         { name = "MONGODB_URI", value = "mongodb://localhost:27017" },
         { name = "MONGODB_NAME", value = "ani" },
         # WARNING: Allowing all origins is insecure. For production, replace "*" with your specific domain.
-        { name = "CORS_WHITELIST", value = "*" }
+        { name = "CORS_WHITELIST", value = "*" },
+        # JWT secrets required for user registration and authentication
+        { name = "JWT_SECRET", value = "test-jwt-secret-for-e2e-testing" },
+        { name = "REFRESH_TOKEN_SECRET", value = "test-refresh-token-secret-for-e2e-testing" },
+        { name = "JWT_EXPIRY", value = "15m" },
+        { name = "REFRESH_TOKEN_EXPIRY", value = "7d" }
       ]
       logConfiguration = local.log_configuration
     },
