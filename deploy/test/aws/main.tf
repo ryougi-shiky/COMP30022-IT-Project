@@ -53,7 +53,8 @@ locals {
         { name = "MONGODB_NAME", value = "ani" },
         # WARNING: Allowing all origins is insecure. For production, replace "*" with your specific domain.
         { name = "CORS_WHITELIST", value = "*" },
-        # JWT secrets required for user registration and authentication
+        # Test JWT secrets for user registration and authentication
+        # Please save your secrets to a safe place like AWS Secret Manager if you need to use this project in a production environment
         { name = "JWT_SECRET", value = "ecs-test-jwt-secret-for-e2e-testing-min-32-chars" },
         { name = "REFRESH_TOKEN_SECRET", value = "ecs-test-refresh-token-secret-for-e2e-testing-min-32-chars" },
         { name = "JWT_EXPIRY", value = "15m" },
