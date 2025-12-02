@@ -25,12 +25,14 @@ router.get('/db-ready', async (req, res) => {
         }
 
         // Perform a simple write/read/delete test to verify database is fully operational
+        // Use ObjectId for guaranteed uniqueness even with concurrent requests
         const testCollection = mongoose.connection.db.collection('healthcheck_test');
-        const testDoc = { _id: `test_${Date.now()}`, timestamp: new Date() };
+        const testId = new mongoose.Types.ObjectId();
+        const testDoc = { _id: testId, timestamp: new Date() };
         
         await testCollection.insertOne(testDoc);
-        const found = await testCollection.findOne({ _id: testDoc._id });
-        await testCollection.deleteOne({ _id: testDoc._id });
+        const found = await testCollection.findOne({ _id: testId });
+        await testCollection.deleteOne({ _id: testId });
 
         if (found) {
             res.status(200).json({ 
