@@ -67,6 +67,6 @@
     "webpack-dev-server": "^5.2.1",
     "postcss": "^8.4.31",
     "node-forge": "^1.3.2",
-    "glob": "^10.5.0"
+    "glob": "^13.0.0"
   }
 }
