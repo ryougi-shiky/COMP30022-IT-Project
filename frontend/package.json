@@ -4,7 +4,8 @@
   "private": true,
   "proxy": "http://server:17000",
   "overrides": {
-    "qs": "^6.14.2"
+    "qs": "^6.14.2",
+    "minimatch": ">=10.2.1"
   },
   "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
