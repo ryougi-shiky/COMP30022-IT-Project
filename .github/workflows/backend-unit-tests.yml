@@ -11,7 +11,7 @@ on:
 jobs:
   backend-unit-tests:
     name: Run Backend Unit Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
