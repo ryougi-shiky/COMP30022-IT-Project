@@ -11,7 +11,7 @@ jobs:
 
   trufflehog-scan:
     name: TruffleHog Secrets Scan
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -22,7 +22,7 @@ jobs:
 
   trivy-scan:
     name: Trivy Vulnerability Scan
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -46,7 +46,7 @@ jobs:
 
   sonar-scan:
     name: SonarQube Scan
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
