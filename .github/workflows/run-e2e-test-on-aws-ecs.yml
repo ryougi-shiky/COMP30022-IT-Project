@@ -126,7 +126,7 @@ jobs:
           echo "ECS Task Public IP: $PUBLIC_IP"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Install Docker Environment
         run: |
