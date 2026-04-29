@@ -75,6 +75,7 @@
     "serialize-javascript": ">=7.0.3",
     "postcss-svgo": {
       "svgo": "^2.8.1"
-    }
+    },
+    "picomatch": "^4.0.4"
   }
 }
