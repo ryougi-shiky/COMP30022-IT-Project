@@ -71,7 +71,12 @@ Auth middleware: `backend/middleware/authMiddleware.js` — verifies JWT, attach
 | Frontend unit | React Testing Library | `frontend/src/**/*.test.js` | `cd frontend && npm test` |
 | E2E | Cypress | `frontend/cypress/` | `cd frontend && npm run cypress:run` |
 
-- Always add or update tests when changing backend routes or models.
+**Strictly follow TDD for all code changes** (frontend, backend, models, utilities):
+1. Write a failing test first.
+2. Write the minimum code to make it pass.
+3. Refactor, keeping tests green.
+
+- Never merge code without corresponding tests.
 - Backend Jest config: `testEnvironment: node`, `--detectOpenHandles --forceExit`.
 
 ## Git / PRs
