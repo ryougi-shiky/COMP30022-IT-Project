@@ -3,6 +3,6 @@ FROM cypress/browsers:node-22.16.0-chrome-137.0.7151.119-1-ff-139.0.4-edge-137.0
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts && npx cypress install
+RUN npm ci --ignore-scripts && npx patch-package && npx cypress install
 
 COPY . .
