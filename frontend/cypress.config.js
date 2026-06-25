@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = defineConfig({
+  allowCypressEnv: false,
+
   // Default timeout for most commands, can be overridden by env var
   defaultCommandTimeout: process.env.CYPRESS_DEFAULT_COMMAND_TIMEOUT
     ? parseInt(process.env.CYPRESS_DEFAULT_COMMAND_TIMEOUT)
@@ -54,8 +56,5 @@ module.exports = defineConfig({
         }
       });
     },
-  },
-  env: {
-    // You can add other environment variables here
   },
 });
