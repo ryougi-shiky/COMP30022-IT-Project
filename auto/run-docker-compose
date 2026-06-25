@@ -5,23 +5,23 @@ cd "$(dirname "$0")/.."
 
 echo "-------------------- 🐳 Starting Docker Compose --------------------"
 
-declare -A env_configs=(
-  ["local"]="deploy/docker-compose.local.yml"
-  ["test"]="deploy/docker-compose.test.yml"
-)
-
 if [[ -z "${ENV:-}" ]]; then
   echo "❌ ENV variable is not set."
-  echo "Please set ENV to one of: ${!env_configs[*]}"
-  exit 1
-elif [[ ! -v env_configs["$ENV"] ]]; then
-  echo "❌ Invalid ENV value: $ENV"
-  echo "Valid values are: ${!env_configs[*]}"
+  echo "Please set ENV to one of: local, test"
   exit 1
 fi
 
+case "$ENV" in
+  local) docker_compose_params="deploy/docker-compose.local.yml" ;;
+  test)  docker_compose_params="deploy/docker-compose.test.yml" ;;
+  *)
+    echo "❌ Invalid ENV value: $ENV"
+    echo "Valid values are: local, test"
+    exit 1
+    ;;
+esac
+
 echo "✅ Using $ENV environment configuration"
-docker_compose_params="${env_configs[$ENV]}"
 
 docker_compose_template="deploy/docker-compose.temp.yml"
 output="rendered-docker-compose.${ENV}.yml"
