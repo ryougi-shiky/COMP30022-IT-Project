@@ -13,7 +13,7 @@ import { loginCall } from '../../apiCall';
 import { CircularProgress } from '@mui/material';
 
 export default function Login() {
-  const backend_url = process.env.REACT_APP_BACKEND_URL;
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
   const email = useRef();
   const password = useRef();
   const {user: currentUser, isFetching, error, dispatch} = useContext(AuthContext);

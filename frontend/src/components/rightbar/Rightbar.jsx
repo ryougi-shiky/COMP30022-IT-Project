@@ -15,7 +15,7 @@ import { decodeImg } from "../../decodeImg";
 
 import Weather from "../weather/Weather";
 
-const backend_url = process.env.REACT_APP_BACKEND_URL;
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 export default function Rightbar({user}) {
   const [friends, setFriends] = useState([]);

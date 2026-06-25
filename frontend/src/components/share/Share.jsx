@@ -10,7 +10,7 @@ import { decodeImg } from "../../decodeImg";
 
 
 export default function Share({ onPostCreate }) {
-  const backend_url = process.env.REACT_APP_BACKEND_URL;
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
   const {user} = useContext(AuthContext);
   const desc = useRef();
   const [file, setFile] = useState(null);

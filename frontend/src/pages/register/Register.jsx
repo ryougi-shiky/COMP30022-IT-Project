@@ -10,7 +10,7 @@ import {loginCall} from '../../apiCall';
 import axios from 'axios';
 
 export default function Register() {
-  const backend_url = process.env.REACT_APP_BACKEND_URL;
+  const backend_url = import.meta.env.VITE_BACKEND_URL;
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -7,7 +7,7 @@ import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { validateProfilePage } from "../../regex/validateUrl";
 
-const backend_url = process.env.REACT_APP_BACKEND_URL;
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 export default function FeedMoments({username}) {
   // const { user:currentUser, isFetching, error, dispatch, feed_display_moments } = useContext(AuthContext);
