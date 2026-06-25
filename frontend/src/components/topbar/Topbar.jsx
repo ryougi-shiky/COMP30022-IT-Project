@@ -23,7 +23,7 @@ import axios from 'axios';
 import { fontWeight } from '@mui/system';
 
 
-const backend_url = process.env.REACT_APP_BACKEND_URL;
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 const defaultProfilePicture = "/assets/icon/person/noAvatar.png";
 
 const menuOptions = [

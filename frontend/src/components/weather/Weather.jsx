@@ -13,7 +13,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
-const weather_api_key = process.env.REACT_APP_OPEN_WEATHER_RAPID_API_KEY;
+const weather_api_key = import.meta.env.VITE_OPEN_WEATHER_RAPID_API_KEY;
 
 export default function Weather() {
 	const [weather, setWeather] = useState();

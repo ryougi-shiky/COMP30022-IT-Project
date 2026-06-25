@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import Topbar from "../../components/topbar/Topbar";
 
-const backend_url = process.env.REACT_APP_BACKEND_URL;
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 export default function HealthCheck() {
     // const { user:currentUser, isFetching, error, dispatch, feed_display_moments } = useContext(AuthContext);

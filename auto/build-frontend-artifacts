@@ -9,6 +9,6 @@ cd frontend
 rm -rf build
 docker rm -f frontend-build
 docker run --rm --name frontend-build --network=host \
-    -e "REACT_APP_BACKEND_URL=/api" \
+    -e "VITE_BACKEND_URL=/api" \
     -v "$(pwd)/build:/app/build" \
     frontend-dev npm run build
