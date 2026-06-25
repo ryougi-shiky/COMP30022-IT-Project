@@ -19,6 +19,7 @@ socket/
 *.env
 frontend/cypress/screenshots
 *.iml
+rendered-docker-compose.*.yml
 
 
 # Terraform
