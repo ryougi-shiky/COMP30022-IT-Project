@@ -19,8 +19,6 @@ const whitelist = process.env.CORS_WHITELIST?.split(',').map(origin => origin.tr
 
 mongoose.connect(process.env.MONGODB_URI, {
   dbName: process.env.MONGODB_NAME,
-  useNewUrlParser: true,
-  useUnifiedTopology: true
 })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB Connection Error:", err));
