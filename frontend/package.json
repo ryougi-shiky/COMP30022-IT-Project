@@ -17,7 +17,7 @@
     "react": "^19.0.0",
     "react-cookie": "^8.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.17.0",
+    "react-router-dom": "^7.18.3",
     "recharts": "^2.7.2",
     "web-vitals": "^5.0.0"
   },
